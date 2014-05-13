@@ -10,7 +10,7 @@ Scene0.prototype.init = function() {
 }
 Scene0.prototype.disp = function(canvas) {
 	canvas.save();
-	canvas.fillStyle = "rgb(0,255,255)";
+	canvas.fillStyle = "rgb(0,255,0)";
 	canvas.fillRect(0, 0, 384, 512);
 	canvas.restore();
 }
