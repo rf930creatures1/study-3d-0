@@ -8,7 +8,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>rf930creatures1-study3d-0</title>
 <script src="Vector2.js"></script>
-<script src="Matrix2x2.js"></script>
 <script type="text/javascript">
 <!--
 //キャンバスの大きさ設定とか準備
@@ -28,7 +27,7 @@ function Scene() {
 
 //描画に必要なデータをセット
 Scene.prototype.init = function() {
-	this.vec2line = [new Vector2(100, 100), new Vector2(100, 200)];
+	this.vec2segment = [new Vector2(100, 100), new Vector2(100, 200)];
 }
 
 //描画の実行
@@ -37,8 +36,8 @@ Scene.prototype.disp = function(canvas) {
 	canvas.strokeStyle = "rgb(255, 0, 0)";
 	canvas.beginPath();
 	
-	canvas.moveTo(this.vec2line[0].x, this.vec2line[0].y);
-	canvas.lineTo(this.vec2line[1].x, this.vec2line[1].y);
+	canvas.moveTo(this.vec2segment[0].x, this.vec2segment[0].y);
+	canvas.lineTo(this.vec2segment[1].x, this.vec2segment[1].y);
 	
 	canvas.closePath();
 	canvas.stroke();
