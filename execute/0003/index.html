@@ -47,7 +47,7 @@ Scene.prototype.disp = function(canvas) {
 }
 
 //中心を引数で取って、十字を描くためのVector2配列を返す
-Scene.prototype.crossData = function(canvas, center) {
+Scene.prototype.crossVertices = function(canvas, center) {
 	var width = canvas.canvas.width;
 	var height = canvas.canvas.height;
 	return [[new Vector2(center.x, 0), new Vector2(center.x, height)], [new Vector2(0, center.y), new Vector2(width, center.y)]];
