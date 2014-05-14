@@ -27,7 +27,7 @@ function Scene() {
 
 //描画に必要なデータをセット
 Scene.prototype.init = function() {
-	this.triangle = [new Vector2(50, 250), new Vector2(200, 250), new Vector2(200, 50)];
+	
 }
 
 //描画の実行
@@ -36,7 +36,7 @@ Scene.prototype.disp = function(canvas) {
 	canvas.strokeStyle = "rgb(255, 0, 0)";
 	canvas.beginPath();
 	
-	var cross = this.crossDatas(canvas, new Vector2(384/2-100, 512/2));
+	var cross = this.crossData(canvas, new Vector2(384/2-100, 512/2));
 	for (var i = 0; i < cross.length; i++) {
 		canvas.moveTo(cross[i][0].x, cross[i][0].y);
 		canvas.lineTo(cross[i][1].x, cross[i][1].y);
@@ -48,7 +48,7 @@ Scene.prototype.disp = function(canvas) {
 }
 
 //中心を引数で取って、十字を描くためのVector2配列を返す
-Scene.prototype.crossDatas = function(canvas, center) {
+Scene.prototype.crossData = function(canvas, center) {
 	var width = canvas.canvas.width;
 	var height = canvas.canvas.height;
 	return [[new Vector2(center.x, 0), new Vector2(center.x, height)], [new Vector2(0, center.y), new Vector2(width, center.y)]];
