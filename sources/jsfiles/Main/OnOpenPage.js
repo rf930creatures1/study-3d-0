@@ -1,7 +1,9 @@
 //==================
 // Start Methods
 //==================
+var gActived;
 function start() {
+	gActived = true;
 	var canvas = document.getElementById("mainCanvas");
 	expandCanvas(canvas);
 	new MainActivity(canvas);

@@ -38,9 +38,11 @@ function GameManager(in_canvas) {
 	window.onbeforeunload = this.destroy;
 }
 GameManager.prototype.gameloop = function() {
-	this.init();
-	this.disp();
-	this.step();
+	if (gActived) {
+		this.init();
+		this.disp();
+		this.step();
+	}
 }
 GameManager.prototype.init = function() {
 	if (this.initFlag) {
