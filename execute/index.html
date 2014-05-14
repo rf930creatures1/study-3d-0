@@ -7,6 +7,7 @@
 <meta name="description" content="rf930creatures1 study3d 0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>rf930creatures1-study3d-0</title>
+<script src="Vector2.js"></script>
 <script type="text/javascript">
 <!--
 //キャンバスの大きさ設定とか準備
@@ -26,7 +27,7 @@ function Scene() {
 
 //描画に必要なデータをセット
 Scene.prototype.init = function() {
-	
+	this.triangle = [new Vector2(50, 250), new Vector2(200, 250), new Vector2(200, 50)];
 }
 
 //描画の実行
@@ -35,10 +36,10 @@ Scene.prototype.disp = function(canvas) {
 	canvas.strokeStyle = "rgb(255, 0, 0)";
 	canvas.beginPath();
 	
-	canvas.moveTo(384/2, 0);
-	canvas.lineTo(384/2, 512);
-	canvas.moveTo(0, 512/2);
-	canvas.lineTo(384, 512/2);
+	canvas.moveTo(this.triangle[0].x, this.triangle[0].y);
+	for (var i = 1; i < this.triangle.length; i++) {
+		canvas.lineTo(this.triangle[i].x, this.triangle[i].y);
+	}
 	
 	canvas.closePath();
 	canvas.stroke();
