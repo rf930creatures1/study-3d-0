@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="keywords" content="rf930creatures1 study3d 0">
+<meta name="description" content="rf930creatures1 study3d 0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>rf930creatures1-study3d-0</title>
+<script src="Vector2.js"></script>
+<script src="Matrix2x2.js"></script>
+<script type="text/javascript">
+<!--
+//キャンバスの大きさ設定とか準備
+function start() {
+	var in_canvas = document.getElementById("mainCanvas");
+	in_canvas.width = 384;
+	in_canvas.height = 512;
+	this.canvas = in_canvas.getContext("2d");
+	
+	var scene = new Scene();
+	scene.init();
+	scene.disp(this.canvas);
+}
+
+function Scene() {
+}
+
+//描画に必要なデータをセット
+Scene.prototype.init = function() {
+	this.vec2line = [new Vector2(100, 100), new Vector2(100, 200)];
+}
+
+//描画の実行
+Scene.prototype.disp = function(canvas) {
+	canvas.save();
+	canvas.strokeStyle = "rgb(255, 0, 0)";
+	canvas.beginPath();
+	
+	canvas.moveTo(this.vec2line[0].x, this.vec2line[0].y);
+	canvas.lineTo(this.vec2line[1].x, this.vec2line[1].y);
+	
+	canvas.closePath();
+	canvas.stroke();
+	canvas.restore();
+}
+
+-->
+</script>
+</head>
+<body onLoad="start()">
+<canvas id="mainCanvas" style="background-color:black;">
+図形を表示するには、canvasタグをサポートしたブラウザが必要です。
+</canvas>
+</body>
+</html>
