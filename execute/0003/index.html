@@ -36,10 +36,9 @@ Scene.prototype.disp = function(canvas) {
 	canvas.strokeStyle = "rgb(255, 0, 0)";
 	canvas.beginPath();
 	
-	var cross = this.crossDatas(canvas, new Vector2(384/2-100, 512/2));
-	for (var i = 0; i < cross.length; i++) {
-		canvas.moveTo(cross[i][0].x, cross[i][0].y);
-		canvas.lineTo(cross[i][1].x, cross[i][1].y);
+	canvas.moveTo(this.triangle[0].x, this.triangle[0].y);
+	for (var i = 1; i < this.triangle.length; i++) {
+		canvas.lineTo(this.triangle[i].x, this.triangle[i].y);
 	}
 	
 	canvas.closePath();
