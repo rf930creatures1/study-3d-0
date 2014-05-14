@@ -13,7 +13,7 @@ function Scene0(gameManager) {
 }
 Scene0.prototype = new GameScene(this.gManager);
 Scene0.prototype.init = function() {
-	this.doing = DOING.VEC2LINE;
+	this.doing = DOING.CROSS;
 	this.triangle = new TrianglePoints(50, 250, 0, 200, 250, 0, 200, 50, 0);
 	this.vec2line = [new Vector2(100, 100), new Vector2(100, 200)];
 	this.clossline1 = [new Vector2(384/2, 0), new Vector2(384/2, 512)];
