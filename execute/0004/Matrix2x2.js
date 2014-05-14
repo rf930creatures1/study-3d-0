@@ -27,11 +27,11 @@ Matrix2x2.prototype.setZero = function() {
 }
 
 Matrix2x2.prototype.setScale = function(scale) {
-	this.m11 *= scale;
-	this.m22 *= scale;
+	this.m11 = scale;
+	this.m22 = scale;
 }
 
-Matrix2x2.prototype.dotVector2 = function(vec2) {
+Matrix2x2.prototype.transform = function(vec2) {
 	return new Vector2(this.m11 * vec2.x + this.m12 * vec2.y, this.m21 * vec2.x + this.m22 * vec2.y);
 }
 

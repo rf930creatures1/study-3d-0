@@ -37,11 +37,11 @@ Scene.prototype.disp = function(canvas) {
 	canvas.strokeStyle = "rgb(255, 0, 0)";
 	canvas.beginPath();
 	
-	//行列を適応してみる
+	//行列を適用してみる
 	mat = new Matrix2x2();
 	mat.setScale(2.0);
 	for (var i = 0; i < this.triangle.length; i++) {
-		this.triangle[i] = mat.dotVector2(this.triangle[i]);
+		this.triangle[i] = mat.transform(this.triangle[i]);
 	}
 	
 	canvas.moveTo(this.triangle[0].x, this.triangle[0].y);

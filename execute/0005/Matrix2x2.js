@@ -31,17 +31,16 @@ Matrix2x2.prototype.setScale = function(scale) {
 	this.m22 = scale;
 }
 
-Matrix2x2.prototype.setRotate = function(degree) {
-	var rad = degree * Math.PI / 180.0;
-	var cosed = Math.cos(rad);
-	var sined = Math.sin(rad);
+Matrix2x2.prototype.setRotate = function(radian) {
+	var cosed = Math.cos(radian);
+	var sined = Math.sin(radian);
 	this.m11 = cosed;
 	this.m12 = -sined;
 	this.m21 = sined;
 	this.m22 = cosed;
 }
 
-Matrix2x2.prototype.dotVector2 = function(vec2) {
+Matrix2x2.prototype.transform = function(vec2) {
 	return new Vector2(this.m11 * vec2.x + this.m12 * vec2.y, this.m21 * vec2.x + this.m22 * vec2.y);
 }
 
