@@ -2,7 +2,6 @@
 //  Matrix2x2クラス
 //=======================
 function Matrix2x2() {
-	this.setIdentity();
 }
 
 Matrix2x2.prototype.set = function(mt11, mt12, mt21, mt22) {
@@ -26,9 +25,9 @@ Matrix2x2.prototype.setZero = function() {
 	this.m22 = 0;
 }
 
-Matrix2x2.prototype.setScale = function(scale) {
-	this.m11 = scale;
-	this.m22 = scale;
+Matrix2x2.prototype.scale = function(scale) {
+	this.m11 *= scale;
+	this.m22 *= scale;
 }
 
 Matrix2x2.prototype.transform = function(vec2) {
@@ -37,3 +36,22 @@ Matrix2x2.prototype.transform = function(vec2) {
 
 
 
+//===staticメソッド的なもの===
+
+function Matrix2x2_Identity() {
+	var m = new Matrix2x2();
+	m.setIdentity();
+	return m;
+}
+
+function Matrix2x2_Set(mt11, mt12, mt21, mt22) {
+	var m = new Matrix2x2();
+	m.set(mt11, mt12, mt21, mt22);
+	return m;
+}
+
+function Matrix2x2_Zero() {
+	var m = new Matrix2x2();
+	m.setZero();
+	return m;
+}

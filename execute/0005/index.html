@@ -39,8 +39,8 @@ Scene.prototype.disp = function(canvas) {
 	canvas.beginPath();
 	
 	//行列を適用してみる
-	mat = new Matrix2x2();
-	mat.setRotate(CircleCalculator.toRadian(30));
+	var mat = Matrix2x2_Identity();
+	mat.rotate(CircleCalculator.toRadian(30));
 	for (var i = 0; i < this.triangle.length; i++) {
 		this.triangle[i] = mat.transform(this.triangle[i]);
 	}
