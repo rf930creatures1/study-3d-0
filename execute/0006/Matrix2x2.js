@@ -39,7 +39,7 @@ Matrix2x2.prototype.rotate = function(radian) {
 	var sined = Math.sin(radian);
 	var rotmat = new Matrix2x2_Set(cosed, -sined, sined, cosed);
 	//現在の値に掛け算する
-	this.matrix2x2Multiplication(rotmat);
+	this.multiply(rotmat);
 }
 
 Matrix2x2.prototype.transform = function(vec2) {
@@ -47,22 +47,18 @@ Matrix2x2.prototype.transform = function(vec2) {
 }
 
 //行列同士の掛け算
-Matrix2x2.prototype.matrix2x2Multiplication = function(mat2x2) {
+Matrix2x2.prototype.multiply = function(mat2x2) {
 	//コピーコンストラクタを実行
 	var baseMatrix = this.dup();
 	//計算
 	//行列の掛け算…
 	//(a, b)(p, q) = (ap + br, aq + bs)
 	//(c, d)(r, s)   (cp + dr, cq + ds)
-	var outmat = new Matrix2x2_Set(
-				baseMatrix.m11 * mat2x2.m11 + baseMatrix.m12 * mat2x2.m21, 
-				baseMatrix.m11 * mat2x2.m12 + baseMatrix.m12 * mat2x2.m22,
-				baseMatrix.m12 * mat2x2.m11 + baseMatrix.m22 * mat2x2.m21,
-				baseMatrix.m12 * mat2x2.m12 + baseMatrix.m22 * mat2x2.m22);
-	//値をセット
-	this.set(outmat.m11, outmat.m12, outmat.m21, outmat.m22);
+	this.set(baseMatrix.m11 * mat2x2.m11 + baseMatrix.m12 * mat2x2.m21, 
+			 baseMatrix.m11 * mat2x2.m12 + baseMatrix.m12 * mat2x2.m22,
+			 baseMatrix.m12 * mat2x2.m11 + baseMatrix.m22 * mat2x2.m21,
+			 baseMatrix.m12 * mat2x2.m12 + baseMatrix.m22 * mat2x2.m22);
 }
-
 
 //===staticメソッド的なもの===
 
