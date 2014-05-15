@@ -9,6 +9,7 @@
 <title>rf930creatures1-study3d-0</title>
 <script src="Vector2.js"></script>
 <script src="Matrix2x2.js"></script>
+<script src="CircleCalculator.js"></script>
 <script type="text/javascript">
 <!--
 //キャンバスの大きさ設定とか準備
@@ -37,10 +38,17 @@ Scene.prototype.disp = function(canvas) {
 	canvas.strokeStyle = "rgb(255, 0, 0)";
 	canvas.beginPath();
 	
-	var cross = this.crossDatas(canvas, new Vector2(384/2-100, 512/2));
-	for (var i = 0; i < cross.length; i++) {
-		canvas.moveTo(cross[i][0].x, cross[i][0].y);
-		canvas.lineTo(cross[i][1].x, cross[i][1].y);
+	//行列を適用してみる
+	var mat = Matrix2x2_Identity();
+	mat.rotate(CircleCalculator.toRadian(30));
+	mat.scale(2.0);
+	for (var i = 0; i < this.triangle.length; i++) {
+		this.triangle[i] = mat.transform(this.triangle[i]);
+	}
+	
+	canvas.moveTo(this.triangle[0].x, this.triangle[0].y);
+	for (var i = 1; i < this.triangle.length; i++) {
+		canvas.lineTo(this.triangle[i].x, this.triangle[i].y);
 	}
 	
 	canvas.closePath();
@@ -49,7 +57,7 @@ Scene.prototype.disp = function(canvas) {
 }
 
 //中心を引数で取って、十字を描くためのVector2配列を返す
-Scene.prototype.crossDatas = function(canvas, center) {
+Scene.prototype.crossVertices = function(canvas, center) {
 	var width = canvas.canvas.width;
 	var height = canvas.canvas.height;
 	return [[new Vector2(center.x, 0), new Vector2(center.x, height)], [new Vector2(0, center.y), new Vector2(width, center.y)]];
