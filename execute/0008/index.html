@@ -40,7 +40,7 @@ Scene.prototype.disp = function(canvas) {
 	
 	//行列を適用してみる
 	var mat = Matrix2x3_Identity();
-	mat.rotate(CircleCalculator.toRadian(30));
+	//mat.rotate(CircleCalculator.toRadian(30));
 	mat.translate(100, 100);
 	mat.scale(2.0);
 	for (var i = 0; i < this.triangle.length; i++) {
