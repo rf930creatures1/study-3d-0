@@ -42,7 +42,7 @@ Scene.prototype.disp = function(canvas) {
 	var mat = Matrix2x3_Identity();
 	mat.rotate(CircleCalculator.toRadian(30));
 	mat.scale(2.0);
-	//mat.translate(100, 100);
+	mat.translate(100, 100);
 	for (var i = 0; i < this.triangle.length; i++) {
 		this.triangle[i] = mat.transform(this.triangle[i]);
 	}
