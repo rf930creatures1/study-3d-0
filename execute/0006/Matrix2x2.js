@@ -56,8 +56,8 @@ Matrix2x2.prototype.multiply = function(mat2x2) {
 	//(c, d)(r, s)   (cp + dr, cq + ds)
 	this.set(baseMatrix.m11 * mat2x2.m11 + baseMatrix.m12 * mat2x2.m21, 
 			 baseMatrix.m11 * mat2x2.m12 + baseMatrix.m12 * mat2x2.m22,
-			 baseMatrix.m12 * mat2x2.m11 + baseMatrix.m22 * mat2x2.m21,
-			 baseMatrix.m12 * mat2x2.m12 + baseMatrix.m22 * mat2x2.m22);
+			 baseMatrix.m21 * mat2x2.m11 + baseMatrix.m22 * mat2x2.m21,
+			 baseMatrix.m21 * mat2x2.m12 + baseMatrix.m22 * mat2x2.m22);
 }
 
 //===staticメソッド的なもの===
