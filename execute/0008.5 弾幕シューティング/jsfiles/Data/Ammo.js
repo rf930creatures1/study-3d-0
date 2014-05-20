@@ -1,7 +1,7 @@
 //=======================
 //  弾クラス
 //=======================
-function Ammo(x, y, radius, moveSpeed) {
+function Ammo(x, y, radius, moveSpeed, moveVector) {
 	//弾の位置 (ワールド座標)
 	if (x == null) x = 0;
 	if (y == null) y = 0;
@@ -22,7 +22,9 @@ function Ammo(x, y, radius, moveSpeed) {
 	if (moveSpeed == null) moveSpeed = 50;
 	this.rotationSpeed = 15 / (moveSpeed * FPS);
 	//移動スピード
-	this.moveSpeed = new Vector2(0, moveSpeed * FPS);
+	if (moveVector.x == null) moveVector.x = 0;
+	if (moveVector.y == null) moveVector.y = 1;
+	this.moveSpeed = new Vector2(moveVector.x * moveSpeed * FPS, moveVector.y * moveSpeed * FPS);
 }
 
 Ammo.prototype.draw = function(canvas) {
@@ -59,10 +61,13 @@ Ammo.prototype.move = function() {
 	this.rotation %= 360;
 	
 	//移動
-	this.position = new Vector2(this.position.x + this.moveSpeed.x, this.position.y + this.moveSpeed.y);
+	this.position.add(this.moveSpeed);
 	
 	//表示切り替え
 	this.visible = this.position.x >= 0 - this.radius && this.position.x < 384 + this.radius &&
 					this.position.y >= 0 - this.radius && this.position.y < 512 + this.radius;
 }
 
+Ammo.prototype.isCrash = function(target) {
+	return this.position.distanceToTarget(target) < 5;
+}

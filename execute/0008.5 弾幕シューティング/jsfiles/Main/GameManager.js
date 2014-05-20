@@ -6,6 +6,10 @@ var GameSceneName = {
 };
 function GameManager(in_canvas) {
 	this.canvas = in_canvas;
+	
+	//キー入力記憶クラス
+	this.keyInput = new KeyInput();
+	
 	//仮想画面サイズ
 	this.virtualScreenSize = new Size(384, 512);
 	
