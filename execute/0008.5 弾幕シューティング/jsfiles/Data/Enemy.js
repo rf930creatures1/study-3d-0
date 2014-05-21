@@ -1,7 +1,7 @@
 //=======================
 //  敵クラス
 //=======================
-function Enemy(x, y, radius) {
+function Enemy(x, y, radius, hp, color) {
 	//敵の位置 (ワールド座標)
 	if (x == null) x = 0;
 	if (y == null) y = 0;
@@ -31,12 +31,27 @@ function Enemy(x, y, radius) {
 	this.shotDegree = 0;
 	//ショットの角度の回転スピード
 	this.shotRotateSpeed = 720 * FPS;
+	
+	//発射する弾のタグ
+	this.shootTags = ["enemy", "winner"];
+	//このタグがある弾になら当たっても平気
+	this.hitTags = ["enemy"];
+	
+	//HP
+	this.hp = hp;
+	
+	//色
+	if (color == null) color = new Color(255, 255, 0, 255);
+	this.normalColor = color;
+	this.damageColor = new Color(255, 255, 255, 255);
+	this.color = this.normalColor;
 }
 
 Enemy.prototype.draw = function(canvas) {
 	if (this.visible) {
 		canvas.save();
-		canvas.fillStyle = (new Color(255, 255, 0, 255)).toContextString();
+		canvas.fillStyle = this.color.toContextString();
+		this.color = this.normalColor;
 		canvas.beginPath();
 		
 		//行列の作成と適用
@@ -79,7 +94,24 @@ Enemy.prototype.shot = function() {
 	this.shotDegree %= 360;
 	if (this.shotTime >= this.shotInterval) {
 		this.shotTime = 0;
-		return new Ammo(this.position.x, this.position.y + this.radius, 10, 40, new Vector2(Math.cos(CircleCalculator.toRadian(this.shotDegree)), Math.sin(CircleCalculator.toRadian(this.shotDegree))));
+		return new Ammo(this.position.x, 
+						this.position.y + this.radius, 
+						10, 
+						40, 
+						new Vector2(Math.cos(CircleCalculator.toRadian(this.shotDegree)), Math.sin(CircleCalculator.toRadian(this.shotDegree))), 
+						this.shootTags, 
+						new Color(255, 255, 0, 0));
 	}
 	return null;
+}
+
+Enemy.prototype.hit = function() {
+	if (this.hp > 0) this.hp--;
+	if (this.hp <= 0) {
+		this.visible = false;
+		dp("YOU WIN");
+	}
+	else {
+		this.color = this.damageColor;
+	}
 }

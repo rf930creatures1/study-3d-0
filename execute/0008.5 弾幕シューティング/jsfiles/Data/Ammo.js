@@ -1,7 +1,7 @@
 //=======================
 //  弾クラス
 //=======================
-function Ammo(x, y, radius, moveSpeed, moveVector) {
+function Ammo(x, y, radius, moveSpeed, moveVector, disableTags, color) {
 	//弾の位置 (ワールド座標)
 	if (x == null) x = 0;
 	if (y == null) y = 0;
@@ -25,12 +25,20 @@ function Ammo(x, y, radius, moveSpeed, moveVector) {
 	if (moveVector.x == null) moveVector.x = 0;
 	if (moveVector.y == null) moveVector.y = 1;
 	this.moveSpeed = new Vector2(moveVector.x * moveSpeed * FPS, moveVector.y * moveSpeed * FPS);
+	
+	//弾が当たっても効かないヤツらリスト
+	if (disableTags == null) disableTags = [];
+	this.disables = disableTags;
+	
+	//弾の色
+	if (color == null) color = new Color(255, 255, 0, 0);
+	this.color = color;
 }
 
 Ammo.prototype.draw = function(canvas) {
 	if (this.visible) {
 		canvas.save();
-		canvas.strokeStyle = (new Color(255, 255, 0, 0)).toContextString();
+		canvas.strokeStyle = this.color.toContextString();
 		canvas.beginPath();
 		
 		//行列の作成と適用
@@ -68,6 +76,17 @@ Ammo.prototype.move = function() {
 					this.position.y >= 0 - this.radius && this.position.y < 512 + this.radius;
 }
 
-Ammo.prototype.isCrash = function(target) {
-	return this.position.distanceToTarget(target) < 5;
+Ammo.prototype.isCrash = function(target, radius) {
+	return this.position.distanceToTarget(target) < radius;
+}
+
+Ammo.prototype.isDisable = function(tags) {
+	for (var i in this.disables) {
+		for (var j in tags) {
+			if (tags[j] == this.disables[i]) {
+				return true;
+			}
+		}
+	}
+	return false;
 }

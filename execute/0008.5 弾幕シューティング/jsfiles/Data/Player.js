@@ -22,8 +22,13 @@ function Player(x, y, radius) {
 	this.moveSpeed = 100 * FPS;
 	
 	//何秒間隔で弾を撃つか
-	this.shotInterval = 0.01;
+	this.shotInterval = 0.1;
 	this.shotTime = 0;
+	
+	//発射する弾のタグ
+	this.shootTags = ["player", "winner"];
+	//このタグがある弾になら当たっても平気
+	this.hitTags = ["player"];
 	
 }
 
@@ -79,8 +84,24 @@ Player.prototype.move = function(keyInput) {
 	}
 }
 
-Player.prototype.shot = function() {
-	
+Player.prototype.shot = function(keyInput) {
+	this.shotTime += FPS;
+	if (keyInput.space) {
+		if (this.shotTime >= this.shotInterval) {
+			this.shotTime = 0;
+			return new Ammo(this.position.x, 
+							this.position.y - this.radius, 
+							5, 
+							120, 
+							new Vector2(0, -1), 
+							this.shootTags,
+							new Color(255, 0, 0, 255));
+		}
+	}
+	return null;
 }
 
-
+Player.prototype.hit = function() {
+	this.visible = false;
+	dp("GAME OVER");
+}
