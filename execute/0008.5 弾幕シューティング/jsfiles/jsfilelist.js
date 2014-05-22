@@ -22,4 +22,5 @@ document.write('<script src="jsfiles/Data/Motion.js"></script>');
 document.write('<script src="jsfiles/Data/Player.js"></script>');
 document.write('<script src="jsfiles/Data/Tentacle.js"></script>');
 document.write('<script src="jsfiles/Data/TentacleEnemy.js"></script>');
+document.write('<script src="jsfiles/Data/TentacleBoldPendulumEnemy.js"></script>');
 document.write('<script src="jsfiles/Scene/Scene0.js"></script>');

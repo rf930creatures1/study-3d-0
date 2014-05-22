@@ -36,7 +36,14 @@ Tentacle.prototype.getAllMatrix = function() {
 		var childAllMat = this.children[i].getAllMatrix();
 		for (var j in childAllMat) {
 			var dupmat = this.matrix.dup();
-			dupmat.multiply(childAllMat[j])
+			
+			/* 時間tがあれば、親につられながらも独立した∞型運動ができる
+			var dupmat = Matrix2x3_Identity();
+			var motion = Motion.InfinityShape(t);
+			dupmat.translate(motion.x * 50, motion.y * 50);
+			*/
+			
+			dupmat.multiply(childAllMat[j]);
 			ret.push(dupmat);
 		}
 	}

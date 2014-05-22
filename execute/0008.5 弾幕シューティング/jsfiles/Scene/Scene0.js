@@ -4,7 +4,7 @@
 function Scene0(gameManager) {
 	GameScene.call(this, gameManager);
 	//敵の位置へ、生成タイミングは一定期間置きつつのランダムで、噴射してみたい
-	this.enemy = new TentacleEnemy(384/2, 100, 30, 20, new Color(255, 255, 0, 255));
+	this.enemy = new TentacleBoldPendulumEnemy(384/2, 100, 30, 150, new Color(255, 255, 0, 255));
 	this.enemy.visible = true;
 	this.ammos = [];
 	
