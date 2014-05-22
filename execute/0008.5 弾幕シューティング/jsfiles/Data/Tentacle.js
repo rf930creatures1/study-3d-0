@@ -8,17 +8,21 @@ function Tentacle(matrix) {
 	
 	this.matrix = matrix;
 	this.children = [];
+	//this.parent = null;
+	this.worldMatrix = null;
 }
 
 //子を追加
 Tentacle.prototype.createChild = function(matrix) {
 	var child = new Tentacle(matrix);
+	//child.parent = this;
 	this.children.push(child);
 	return child;
 }
 
 //子を削除
 Tentacle.prototype.removeChild = function(index) {
+	this.children[index].parent = null;
 	this.children[index] = null;
 	var newChildren = [];
 	for (var i in this.children) {
@@ -49,3 +53,22 @@ Tentacle.prototype.getAllMatrix = function() {
 	}
 	return ret;
 }
+
+Tentacle.prototype.calcWorldMatrix = function(worldMatrix) {
+	var m = this.matrix.dup();
+	m.multiply(worldMatrix);
+	this.worldMatrix = m;
+	for (var i in this.children) {
+		this.children[i].calcWorldMatrix(m);
+	}
+}
+/*
+Tentacle.prototype.getMatrix = function() {
+	if (this.parent != null) {
+		var mat = this.parent.getMatrix();
+		mat.multiply(this.matrix);
+		return mat.dup();
+	}
+	return this.matrix.dup();
+}
+*/

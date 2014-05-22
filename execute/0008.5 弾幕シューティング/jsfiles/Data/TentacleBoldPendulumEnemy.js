@@ -13,11 +13,18 @@ function TentacleBoldPendulumEnemy(x, y, radius, hp, color) {
 	mat.translate(0, 50);
 	this.tentacle.createChild(mat.dup()).createChild(mat.dup()).createChild(mat.dup()).createChild(mat.dup());
 	
+	var mat2 = mat.dup();
+	var mat3 = mat1.dup();
+	mat3.rotate(CircleCalculator.toRadian(-30));
+	mat3.multiply(mat2);
+	this.tentacle.createChild(mat3.dup());//.createChild(mat.dup());
+	
 }
 TentacleBoldPendulumEnemy.prototype = new Enemy(this.x, this.y, this.radius, this.hp, this.color);
 
 TentacleBoldPendulumEnemy.prototype.draw = function(canvas) {
 	//Enemy.prototype.draw.call(this, canvas);
+	this.tentacle.calcWorldMatrix(this.tentacle.matrix);
 	if (this.visible) {
 		canvas.save();
 		
@@ -59,6 +66,8 @@ TentacleBoldPendulumEnemy.prototype.draw = function(canvas) {
 		
 		//親と子の原点をつなぐ
 		canvas.strokeStyle = (new Color(255, 255, 255, 255)).toContextString();
+		this.drawGenealogy(canvas, this.tentacle);
+		/*
 		for (var ii in mats) {
 			var mat = mats[ii].dup();
 			var matid = Matrix2x3_Identity();
@@ -80,14 +89,59 @@ TentacleBoldPendulumEnemy.prototype.draw = function(canvas) {
 				canvas.stroke();
 			}
 		}
+		*/
 		
 		canvas.restore();
 	}
 }
 
+TentacleBoldPendulumEnemy.prototype.drawGenealogy = function(canvas, tentacle) {
+	
+	//親と子を結んで、
+	//子を使って再帰する
+	
+	for (var i in tentacle.children) {
+		var mat = tentacle.worldMatrix.dup();
+		var matid = Matrix2x3_Identity();
+		matid.translate(this.position.x, this.position.y);
+		matid.multiply(mat);
+		
+		mat = tentacle.children[i].worldMatrix.dup();
+		var matid2 = Matrix2x3_Identity();
+		matid2.translate(this.position.x, this.position.y);
+		matid2.multiply(mat);
+		
+		canvas.save();
+		canvas.beginPath();
+		var po = new Vector2();
+		var p1 = matid.transform(po);
+		var p2 = matid2.transform(po);
+		canvas.moveTo(p1.x, p1.y);
+		canvas.lineTo(p2.x, p2.y);
+		canvas.closePath();
+		canvas.stroke();
+		canvas.restore();
+		
+		this.drawGenealogy(canvas, tentacle.children[i]);
+	}
+}
+
 TentacleBoldPendulumEnemy.prototype.move = function() {
 	//Enemy.prototype.move.call(this);
-	this.furiko(this.tentacle.children[0]);
+	this.furiko(this.tentacle.children[0], this.moved);
+	//this.shooterAngle = 90 + 45 * this.moved;
+	
+	//砲台の向き
+	var mats = this.tentacle.getAllMatrix();
+	//モデルの先端とモデルの原点からベクトルを作って角度を求める
+	var sp = mats[mats.length - 1].transform(this.model[0]);
+	var tp = mats[mats.length - 1].transform(new Vector2());
+	var rad = Math.atan2(sp.y - tp.y, sp.x - tp.x);
+	var deg = CircleCalculator.toDegree(rad);
+	this.shooterAngle = deg;
+	
+	this.moved += this.moveSpeed;
+	if (this.moved > 1) this.moved = 0;
 }
 
 TentacleBoldPendulumEnemy.prototype.shot = function() {
@@ -120,13 +174,30 @@ TentacleBoldPendulumEnemy.prototype.hit = function() {
 	Enemy.prototype.hit.call(this);
 }
 
-TentacleBoldPendulumEnemy.prototype.furiko = function(child) {
-	if (child.children.length > 0) {
-		for (var i in child.children) {
-			this.furiko(child.children[i]);
+TentacleBoldPendulumEnemy.prototype.furiko = function(p, t) {
+	if (p.children.length > 0) {
+		for (var i in p.children) {
+			this.furiko(p.children[i], t);
 		}
 	}
-	var rot = 30 * FPS;
-	child.matrix.rotate(CircleCalculator.toRadian(rot));
-	this.shooterAngle += rot;
+	var rot = 45; //曲がる角度
+	
+	//                                         初期角度 + 目標角度 * 時間
+	//step1: 左に行く      if tが0.25未満なら、   0 + rot * ((t-0.00) / 0.25)
+	//step2: 右に戻る else if tが0.50未満なら、 rot - rot * ((t-0.25) / 0.25)
+	//step3: 右に行く else if tが0.75未満なら、   0 - rot * ((t-0.50) / 0.25)
+	//step4: 左に戻る else                     -rot + rot * ((t-0.75) / 0.25)
+	//loop
+	
+	var deg;
+	for (var i = 0; i < 4; i++) {
+		if (t <= (i+1)/4) {
+			deg = (i == 1 ? 1 : i == 3 ? -1 : 0) * rot + ((i == 1 || i == 2) ? -1 : 1) * rot * ((t - (i * 0.25)) / (1/4));
+			break;
+		}
+	}
+	
+	p.matrix.setIdentity();
+	p.matrix.translate(0, 50);
+	p.matrix.rotate(CircleCalculator.toRadian(deg));
 }

@@ -11,6 +11,8 @@ function Scene0(gameManager) {
 	//自機
 	this.player = new Player(384/2, 450);
 	this.myAmmos = [];
+	
+	this.time = 0;
 }
 Scene0.prototype = new GameScene(this.gManager);
 Scene0.prototype.init = function() {
@@ -81,8 +83,13 @@ Scene0.prototype.step = function() {
 	}
 	this.ammos = aliveAmmos;
 	
+	this.time++;
 }
 
 Scene0.prototype.destroy = function() {
 
+}
+
+Scene0.prototype.getTime = function() {
+	return this.time * FPS;
 }
