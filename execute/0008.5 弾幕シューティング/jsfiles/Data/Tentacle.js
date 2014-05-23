@@ -1,20 +1,21 @@
 //=======================
 //  触手クラス
 //=======================
-function Tentacle(matrix) {
+function Tentacle(matrix, tags) {
 	//親(自分自身)が居て、子がいる。
 	//親が動くと、子が動く。親の行列を、子の行列に掛ける。
 	//子が動いても、親は感知しない
 	
 	this.matrix = matrix;
 	this.children = [];
-	//this.parent = null;
 	this.worldMatrix = null;
+	if (tags == null) this.tags = [];
+	else this.tags = tags;
 }
 
 //子を追加
-Tentacle.prototype.createChild = function(matrix) {
-	var child = new Tentacle(matrix);
+Tentacle.prototype.createChild = function(matrix, tags) {
+	var child = new Tentacle(matrix, tags);
 	//child.parent = this;
 	this.children.push(child);
 	return child;
@@ -54,21 +55,22 @@ Tentacle.prototype.getAllMatrix = function() {
 	return ret;
 }
 
-Tentacle.prototype.calcWorldMatrix = function(worldMatrix) {
-	var m = this.matrix.dup();
-	m.multiply(worldMatrix);
+Tentacle.prototype.calcWorldMatrix = function(parentWorldMatrix) {
+	var m = parentWorldMatrix.dup();
+	m.multiply(this.matrix);
 	this.worldMatrix = m;
 	for (var i in this.children) {
 		this.children[i].calcWorldMatrix(m);
 	}
 }
-/*
-Tentacle.prototype.getMatrix = function() {
-	if (this.parent != null) {
-		var mat = this.parent.getMatrix();
-		mat.multiply(this.matrix);
-		return mat.dup();
+
+Tentacle.prototype.findTag = function(searchTags) {
+	for (var i in this.tags) {
+		for (var j in searchTags) {
+			if (searchTags[j] == this.tags[i]) {
+				return true;
+			}
+		}
 	}
-	return this.matrix.dup();
+	return false;
 }
-*/

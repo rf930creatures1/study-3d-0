@@ -77,7 +77,7 @@ Ammo.prototype.move = function() {
 }
 
 Ammo.prototype.isCrash = function(target, radius) {
-	return this.position.distanceToTarget(target) < radius;
+	return this.position.distanceToTarget(target) - this.radius / 2 < radius;
 }
 
 Ammo.prototype.isDisable = function(tags) {

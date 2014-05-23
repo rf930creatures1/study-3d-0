@@ -46,18 +46,16 @@ Matrix2x3.prototype.translate = function(moveX, moveY) {
 }
 
 //拡大縮小
-Matrix2x3.prototype.scale = function(scale) {
-	//this.m11 *= scale;
-	//this.m22 *= scale;
-	
+Matrix2x3.prototype.scale = function(scaleX, scaleY) {
+	if (scaleY == null) scaleY = scaleX;
 	//(ax, by,  c)
 	//(dx, ey,  f)
 	//( 0,  0,  1)
 	//変更すべきは4箇所
-	this.m11 = this.m11 * scale; //scaleX
-	this.m12 = this.m12 * scale; //scaleY
-	this.m21 = this.m21 * scale; //scaleX
-	this.m22 = this.m22 * scale; //scaleY
+	this.m11 = this.m11 * scaleX; //scaleX
+	this.m12 = this.m12 * scaleY; //scaleY
+	this.m21 = this.m21 * scaleX; //scaleX
+	this.m22 = this.m22 * scaleY; //scaleY
 }
 
 //回転

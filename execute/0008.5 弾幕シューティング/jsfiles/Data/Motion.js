@@ -22,3 +22,7 @@ Motion.InfinityShape = function(t) {
 						  Math.sin(radian) );
 	return ret;
 }
+
+Motion.HorizontalRoundTrip = function(t) {
+	return new Vector2(Math.sin(t * Math.PI * 2), 0);
+}
