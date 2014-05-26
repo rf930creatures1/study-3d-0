@@ -19,7 +19,7 @@ Vector2.prototype.add = function(vec2) {
 
 //引数のVector2までの距離
 Vector2.prototype.distanceToTarget = function(target) {
-	var x = this.x - target.x;
-	var y = this.y - target.y;
+	var x = target.x - this.x;
+	var y = target.y - this.y;
 	return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
 }
