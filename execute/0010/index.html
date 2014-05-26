@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="keywords" content="rf930creatures1 study3d 0">
+<meta name="description" content="rf930creatures1 study3d 0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>rf930creatures1-study3d-0</title>
+<script src="Vector3.js"></script>
+<script src="Matrix4x4.js"></script>
+<script src="CircleCalculator.js"></script>
+<script type="text/javascript">
+<!--
+//キャンバスの大きさ設定とか準備
+function start() {
+	var in_canvas = document.getElementById("mainCanvas");
+	in_canvas.width = 384;
+	in_canvas.height = 512;
+	this.canvas = in_canvas.getContext("2d");
+	
+	var scene = new Scene();
+	scene.init();
+	scene.disp(this.canvas);
+}
+
+function Scene() {
+}
+
+//描画に必要なデータをセット
+Scene.prototype.init = function() {
+	//位置データ (ワールド座標)
+	this.position = new Vector3(192, 150, 0);
+	
+	//大きさ
+	this.radius = 100; 
+	
+	//モデルデータ (ローカル座標) //半径*サイン及びコサイン
+	this.model = [new Vector3(this.radius * Math.cos(CircleCalculator.toRadian(90)), this.radius * Math.sin(CircleCalculator.toRadian(90)), 0), //下
+					new Vector3(this.radius * Math.cos(CircleCalculator.toRadian(-30)), this.radius * Math.sin(CircleCalculator.toRadian(-30)), 0), //右上
+					new Vector3(this.radius * Math.cos(CircleCalculator.toRadian(180+30)), this.radius * Math.sin(CircleCalculator.toRadian(180+30)), 0)]; //左上
+}
+
+//描画の実行
+Scene.prototype.disp = function(canvas) {
+	canvas.save();
+	canvas.strokeStyle = "rgb(255, 0, 0)";
+	canvas.beginPath();
+	
+	//行列の作成と適用
+	var mat = Matrix4x4_Identity();
+	mat.translate(this.position.x, this.position.y, this.position.z);
+	var drawnModel = [];
+	for (var i = 0; i < this.model.length; i++) {
+		drawnModel[i] = mat.transform(this.model[i]);
+	}
+	
+	//射影変換
+	//mat.orthogonalProjectionMatrix(384, 512);
+	
+	//自機は三角形を描く
+	var len = this.model.length;
+	canvas.moveTo(drawnModel[0].x, drawnModel[0].y);
+	for (var i = 1; i < len; i++) {
+		canvas.lineTo(drawnModel[i].x, drawnModel[i].y);
+	}
+	
+	canvas.closePath();
+	canvas.stroke();
+	canvas.restore();
+}
+
+//中心を引数で取って、十字を描くためのVector3配列を返す
+Scene.prototype.crossVertices = function(canvas, center) {
+	var width = canvas.canvas.width;
+	var height = canvas.canvas.height;
+	return [[new Vector3(center.x, 0, 0), new Vector3(center.x, height, 0)], [new Vector3(0, center.y, 0), new Vector3(width, center.y, 0)]];
+}
+
+-->
+</script>
+</head>
+<body onLoad="start()">
+<canvas id="mainCanvas" style="background-color:black;">
+図形を表示するには、canvasタグをサポートしたブラウザが必要です。
+</canvas>
+</body>
+</html>
