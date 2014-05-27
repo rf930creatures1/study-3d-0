@@ -56,7 +56,10 @@ Scene.prototype.disp = function(canvas) {
 	}
 	
 	//射影変換
-	//mat.orthogonalProjectionMatrix(384, 512);
+	var mat2 = Matrix4x4_OrthogonalProjectionMatrix(0, 384, 0, 512, -1, 1);
+	for (var i = 0; i < drawnModel.length; i++) {
+		drawnModel[i] = mat2.transform(drawnModel[i]);
+	}
 	
 	//自機は三角形を描く
 	var len = this.model.length;

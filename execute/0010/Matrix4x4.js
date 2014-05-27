@@ -29,12 +29,14 @@ Matrix4x4.prototype.setZero = function() {
 	this.m41 = 0;	this.m42 = 0;	this.m43 = 0;	this.m44 = 0;
 }
 
+/*
 //正射影行列
 Matrix4x4.prototype.orthogonalProjectionMatrix = function(width, height) {
 	// http://marupeke296.com/DX10_No5_FontTexture.html
-	var screen = Matrix4x4_Set(2 / width, 0, 0, 0, 0, -2 / height, 0, 0, 0, 0, 1, 0, -1, 1, 0, 1);
+	return Matrix4x4_Set(2 / width, 0, 0, 0, 0, -2 / height, 0, 0, 0, 0, 1, 0, -1, 1, 0, 1);
 	this.multiply(screen);
 }
+*/
 
 //移動
 Matrix4x4.prototype.translate = function(moveX, moveY, moveZ) {
@@ -135,3 +137,20 @@ function Matrix4x4_Zero() {
 	return m;
 }
 
+//正射影行列
+function Matrix4x4_OrthogonalProjectionMatrix(left, right, top, bottom, near, far) {
+	// http://marina.sys.wakayama-u.ac.jp/~tokoi/?date=20090829
+	return Matrix4x4_Set(2 / (right - left), 0, 0, (right + left) / (right - left), 
+						 0, 2 / (top - bottom), 0, (top + bottom) / (top - bottom), 
+						 0, 0, -2 / (far - near), (far + near) / (far - near), 
+						 0, 0, 0, 1);
+}
+
+//透視投影変換行列
+function Matrix4x4_PerspectiveMatrix(left, right, top, bottom, near, far) {
+	// http://marina.sys.wakayama-u.ac.jp/~tokoi/?date=20090829
+	return Matrix4x4_Set(2 * near / (right - left), 0, 0, (right + left) / (right - left), 
+						 0, 2 * near / (top - bottom), 0, (top + bottom) / (top - bottom), 
+						 0, 0, -((far + near) / (far - near)), -2 * far * near / (far - near), 
+						 0, 0, -1, 0);
+}
