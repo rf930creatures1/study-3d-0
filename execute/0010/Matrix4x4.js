@@ -137,6 +137,21 @@ function Matrix4x4_Zero() {
 	return m;
 }
 
+//ビュー行列 (ワールド座標からカメラ座標にフィルタするための行列)
+function Matrix4x4_ViewMatrix(at, eye) { // at:注視点(カメラの向き), eye:視点(カメラの場所)
+	var cameraUpVector = new Vector3(0, 1, 0);           // カメラの視点から "上" の方向。通常(0, 1, 0)でよい。
+	var zaxis = eye.subtract(at).normalize();            // Vector3.normalize(eye-at);//左手系のときは(eye-at)、右手系のときは(at-eye)。
+	var xaxis = cameraUpVector.cross(zaxis).normalize(); // Vector3.normalize(Vector3.cross(new Vector3(0, 1, 0), zaxis));
+	var yaxis = zaxis.cross(xaxis);                      // Vector3.Cross(zaxis, xaxis);
+	//左手系の場合。右手系ならreturnでセットしている行列の順番を縦横入れ替えること。
+	return Matrix4x4_Set(
+		xaxis.x, yaxis.x, zaxis.x, 0,
+		xaxis.y, yaxis.y, zaxis.y, 0,
+		xaxis.z, yaxis.z, zaxis.z, 0,
+		-xaxis.dot(eye), -yaxis.dot(eye), -zaxis.dot(eye), 1 
+	);
+}
+
 //正射影行列
 function Matrix4x4_OrthogonalProjectionMatrix(left, right, top, bottom, near, far) {
 	// http://marina.sys.wakayama-u.ac.jp/~tokoi/?date=20090829

@@ -47,21 +47,31 @@ Scene.prototype.disp = function(canvas) {
 	canvas.strokeStyle = "rgb(255, 0, 0)";
 	canvas.beginPath();
 	
-	//行列の作成と適用
-	var mat = Matrix4x4_Identity();
-	mat.translate(this.position.x, this.position.y, this.position.z);
-	var drawnModel = [];
+	//行列の作成と適用 ローカル座標からワールド座標に変換
+	var wMat = Matrix4x4_Identity();
+	wMat.translate(this.position.x, this.position.y, this.position.z);
+	var wDrawnModel = [];
 	for (var i = 0; i < this.model.length; i++) {
-		drawnModel[i] = mat.transform(this.model[i]);
+		wDrawnModel[i] = wMat.transform(this.model[i]);
+	}
+	
+	//ワールド座標からカメラ座標に変換
+	var at = new Vector3(192, 150, 0);			//注視点(カメラの向き)
+	var eye = new Vector3(193, 150.5, 1);		//視点	(カメラの場所)
+	var cMat = Matrix4x4_ViewMatrix(at, eye);
+	var cDrawnModel = [];
+	for (var i = 0; i < wDrawnModel.length; i++) {
+		cDrawnModel[i] = cMat.transform(wDrawnModel[i]);
 	}
 	
 	//射影変換
-	var mat2 = Matrix4x4_OrthogonalProjectionMatrix(0, 384, 0, 512, -1, 1);
-	for (var i = 0; i < drawnModel.length; i++) {
-		drawnModel[i] = mat2.transform(drawnModel[i]);
-	}
+	//var mat2 = Matrix4x4_OrthogonalProjectionMatrix(0, 384, 0, 512, -1, 1);
+	//for (var i = 0; i < drawnModel.length; i++) {
+	//	drawnModel[i] = mat2.transform(drawnModel[i]);
+//	}
 	
 	//自機は三角形を描く
+	var drawnModel = cDrawnModel;
 	var len = this.model.length;
 	canvas.moveTo(drawnModel[0].x, drawnModel[0].y);
 	for (var i = 1; i < len; i++) {
