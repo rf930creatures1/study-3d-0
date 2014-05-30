@@ -78,7 +78,7 @@ Matrix4x4.prototype.rotate = function(radianX, radianY, radianZ) {
 	var cosed = Math.cos(radianY);
 	var sined = Math.sin(radianY);
 	var rotmatY = Matrix4x4_Set(cosed, 0, sined, 0, 0, 1, 0, 0, -sined, 0, cosed, 0, 0, 0, 0, 1);
-	//Y軸回転
+	//Z軸回転
 	var cosed = Math.cos(radianZ);
 	var sined = Math.sin(radianZ);
 	var rotmatZ = Matrix4x4_Set(cosed, -sined, 0, 0, sined, cosed, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
@@ -101,11 +101,11 @@ Matrix4x4.prototype.transform = function(vec3) {
 }
 
 //行列同士の掛け算
-Matrix4x4.prototype.multiply = function(mat2x3) {
+Matrix4x4.prototype.multiply = function(mat4x4) {
 	//コピーコンストラクタを実行
 	var baseMatrix = this.dup();
 	var a = baseMatrix;
-	var b = mat2x3;
+	var b = mat4x4;
 	//計算
 	//行列の掛け算…
 	//(a, b, c)(z, y, x)   (az + bw + ct, ay + bv + cs, ax + bu + cr)

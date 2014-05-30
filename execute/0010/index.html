@@ -10,6 +10,7 @@
 <script src="Vector3.js"></script>
 <script src="Matrix4x4.js"></script>
 <script src="CircleCalculator.js"></script>
+<script src="DebugCommands.js"></script>
 <script type="text/javascript">
 <!--
 //キャンバスの大きさ設定とか準備
@@ -39,6 +40,14 @@ Scene.prototype.init = function() {
 	this.model = [new Vector3(this.radius * Math.cos(CircleCalculator.toRadian(90)), this.radius * Math.sin(CircleCalculator.toRadian(90)), 0), //下
 					new Vector3(this.radius * Math.cos(CircleCalculator.toRadian(-30)), this.radius * Math.sin(CircleCalculator.toRadian(-30)), 0), //右上
 					new Vector3(this.radius * Math.cos(CircleCalculator.toRadian(180+30)), this.radius * Math.sin(CircleCalculator.toRadian(180+30)), 0)]; //左上
+	
+	//行列テスト
+	var p = new Vector3(1, 0, 0);
+	var m = Matrix4x4_Identity();
+	m.rotate(CircleCalculator.toRadian(0), CircleCalculator.toRadian(0), CircleCalculator.toRadian(90));
+	var p1 = m.transform(p);
+	//期待値：(0, 0, 1)または(0, 0, -1) 結果：(0, 1, 0)
+	dp(p1.x + "," + p1.y + "," + p1.z);
 }
 
 //描画の実行
@@ -54,7 +63,7 @@ Scene.prototype.disp = function(canvas) {
 	for (var i = 0; i < this.model.length; i++) {
 		wDrawnModel[i] = wMat.transform(this.model[i]);
 	}
-	
+	/*
 	//ワールド座標からカメラ座標に変換
 	var at = new Vector3(192, 150, 0);			//注視点(カメラの向き)
 	var eye = new Vector3(193, 150.5, 1);		//視点	(カメラの場所)
@@ -63,7 +72,7 @@ Scene.prototype.disp = function(canvas) {
 	for (var i = 0; i < wDrawnModel.length; i++) {
 		cDrawnModel[i] = cMat.transform(wDrawnModel[i]);
 	}
-	
+	*/
 	//射影変換
 	//var mat2 = Matrix4x4_OrthogonalProjectionMatrix(0, 384, 0, 512, -1, 1);
 	//for (var i = 0; i < drawnModel.length; i++) {
@@ -71,7 +80,7 @@ Scene.prototype.disp = function(canvas) {
 //	}
 	
 	//自機は三角形を描く
-	var drawnModel = cDrawnModel;
+	var drawnModel = wDrawnModel;
 	var len = this.model.length;
 	canvas.moveTo(drawnModel[0].x, drawnModel[0].y);
 	for (var i = 1; i < len; i++) {
