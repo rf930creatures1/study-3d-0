@@ -31,7 +31,7 @@ function Scene() {
 //描画に必要なデータをセット
 Scene.prototype.init = function() {
 	//位置データ (ワールド座標)
-	this.position = new Vector3(192, 150, 0);
+	this.position = new Vector3(0, 0, 0);
 	
 	//大きさ
 	this.radius = 100; 
@@ -44,7 +44,7 @@ Scene.prototype.init = function() {
 	//行列テスト
 	var p = new Vector3(1, 0, 0);
 	var m = Matrix4x4_Identity();
-	m.rotate(CircleCalculator.toRadian(0), CircleCalculator.toRadian(0), CircleCalculator.toRadian(90));
+	m.rotate(CircleCalculator.toRadian(0), CircleCalculator.toRadian(90), CircleCalculator.toRadian(0));
 	var p1 = m.transform(p);
 	//期待値：(0, 0, 1)または(0, 0, -1) 結果：(0, 1, 0)
 	dp(p1.x + "," + p1.y + "," + p1.z);
@@ -63,24 +63,36 @@ Scene.prototype.disp = function(canvas) {
 	for (var i = 0; i < this.model.length; i++) {
 		wDrawnModel[i] = wMat.transform(this.model[i]);
 	}
-	/*
-	//ワールド座標からカメラ座標に変換
-	var at = new Vector3(192, 150, 0);			//注視点(カメラの向き)
-	var eye = new Vector3(193, 150.5, 1);		//視点	(カメラの場所)
+	
+	//ワールド座標からカメラ座標(カメラを原点としたときの座標)に変換
+	var at = new Vector3(0, 0, 0);			//注視点(カメラの向き)
+	var eye = new Vector3(0, 0, -10);		//視点	(カメラの場所)
 	var cMat = Matrix4x4_ViewMatrix(at, eye);
 	var cDrawnModel = [];
-	for (var i = 0; i < wDrawnModel.length; i++) {
+	for (var i = 0; i < this.model.length; i++) {
 		cDrawnModel[i] = cMat.transform(wDrawnModel[i]);
 	}
-	*/
+	
 	//射影変換
-	//var mat2 = Matrix4x4_OrthogonalProjectionMatrix(0, 384, 0, 512, -1, 1);
-	//for (var i = 0; i < drawnModel.length; i++) {
-	//	drawnModel[i] = mat2.transform(drawnModel[i]);
-//	}
+	//カメラを原点として、カメラの広さ(視錐台)を定義する。
+	//行列を噛ませた結果、中心を0として端が-1or1の数値を得ることができる。
+	//(物はワールド座標Z=0、カメラはワールド座標Z=-10に居るが、カメラから見ると物はカメラ座標Z=10にあるので、引数のnearとfarはカメラから見てZ=5～15を見る。)
+	var mat3 = Matrix4x4_OrthogonalProjectionMatrix(-220, 220, -220, 220, 5, 15);
+	var pDrawnModel = [];
+	for (var i = 0; i < this.model.length; i++) {
+		pDrawnModel[i] = mat3.transform(cDrawnModel[i]);
+	}
+	
+	//スクリーン変換
+	//射影変換した座標を元に、(いわば正規化されているのでそこに)画面の大きさを掛けてスクリーン座標を得る。
+	var mat2 = Matrix4x4_ViewportMatrix(384, 512);
+	var sDrawnModel = [];
+	for (var i = 0; i < this.model.length; i++) {
+		sDrawnModel[i] = mat2.transform(pDrawnModel[i]);
+	}
 	
 	//自機は三角形を描く
-	var drawnModel = wDrawnModel;
+	var drawnModel = sDrawnModel;
 	var len = this.model.length;
 	canvas.moveTo(drawnModel[0].x, drawnModel[0].y);
 	for (var i = 1; i < len; i++) {

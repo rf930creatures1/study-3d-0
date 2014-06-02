@@ -169,3 +169,8 @@ function Matrix4x4_PerspectiveMatrix(left, right, top, bottom, near, far) {
 						 0, 0, -((far + near) / (far - near)), -2 * far * near / (far - near), 
 						 0, 0, -1, 0);
 }
+
+//ビューポート行列 (スクリーン座標への変換)
+function Matrix4x4_ViewportMatrix(width, height) {
+	return Matrix4x4_Set(width / 2, 0, 0, width / 2, 0, -height / 2, 0, height / 2, 0, 0, 1, 0, 0, 0, 0, 1);
+}
