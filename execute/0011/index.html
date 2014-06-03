@@ -55,14 +55,6 @@ Scene.prototype.init = function() {
 					//左面
 					mp[7], mp[6], mp[3], mp[0], null, 
 				];
-	
-	//行列テスト
-	var p = new Vector3(1, 0, 0);
-	var m = Matrix4x4_Identity();
-	m.rotate(CircleCalculator.toRadian(0), CircleCalculator.toRadian(90), CircleCalculator.toRadian(0));
-	var p1 = m.transform(p);
-	//期待値：(0, 0, 1)または(0, 0, -1) 結果：(0, 1, 0)
-	dp(p1.x + "," + p1.y + "," + p1.z);
 }
 
 //描画の実行
@@ -89,7 +81,7 @@ Scene.prototype.disp = function(canvas) {
 	var at = new Vector3(0, 0, 0);			//注視点(カメラの向き)
 	var eye = new Vector3(0, 0, -10);		//視点	(カメラの場所)
 	var cMat = Matrix4x4_ViewMatrix(at, eye);
-	cMat.rotate(CircleCalculator.toRadian(45), CircleCalculator.toRadian(-45), CircleCalculator.toRadian(180));
+	cMat.rotate(CircleCalculator.toRadian(45), CircleCalculator.toRadian(-45), 0);
 	var cDrawnModel = [];
 	for (var i = 0; i < this.model.length; i++) {
 		if (wDrawnModel[i] != null) {
