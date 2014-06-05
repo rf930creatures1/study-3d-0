@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="keywords" content="rf930creatures1 study3d 0">
+<meta name="description" content="rf930creatures1 study3d 0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>rf930creatures1-study3d-0</title>
+<script src="Vector3.js"></script>
+<script src="Matrix4x4.js"></script>
+<script src="CircleCalculator.js"></script>
+<script src="DebugCommands.js"></script>
+<script type="text/javascript">
+<!--
+//キャンバスの大きさ設定とか準備
+var scene;
+function start() {
+	var in_canvas = document.getElementById("mainCanvas");
+	in_canvas.width = 384;
+	in_canvas.height = 384;
+	this.canvas = in_canvas.getContext("2d");
+	
+	scene = new Scene();
+	scene.init();
+	scene.disp(this.canvas);
+}
+
+function Scene() {
+}
+
+//描画に必要なデータをセット
+Scene.prototype.init = function() {
+	//位置データ (ワールド座標)
+	this.position = new Vector3(0, 0, 0);
+	
+	//大きさ
+	this.radius = 100; 
+	
+	//モデルデータ (ローカル座標)
+	//頂点
+	var mp = [new Vector3(0, 10, 0), new Vector3(10, -10, 0), new Vector3(-10, -10, 0)];
+	var guide = [new Vector3(0, 0, 0), new Vector3(5, 0, 0), new Vector3(0, 5, 0), new Vector3(0, 0, 5)];
+	//モデル (nullを入れて面データ(MoveToとlineToの使い分けフラグ)にしている)
+	this.model = [
+					//時計回りに描くと表になる。
+					mp[0], mp[1], mp[2], null, 
+					
+				];
+	this.guide = [
+					//ガイド線
+					guide[0], guide[1], null,
+					guide[0], guide[2], null,
+					guide[0], guide[3], null,
+				];
+}
+
+//描画の実行
+Scene.prototype.disp = function(canvas) {
+	canvas.save();
+	canvas.clearRect(0, 0, canvas.canvas.width, canvas.canvas.height);
+	canvas.strokeStyle = "rgb(255, 0, 0)";
+	canvas.fillStyle = "rgb(64, 0, 0)";
+	
+	
+	var at = new Vector3(0, 0, 0);			//注視点(カメラの向き)
+	var eye = new Vector3(0, 0, -50);		//視点	(カメラの場所)
+	var eyeMat = Matrix4x4_Identity();
+	eyeMat.rotateY(CircleCalculator.toRadian(70));
+	eyeMat.rotateX(CircleCalculator.toRadian(15));
+	eye = eyeMat.transform(eye);
+	var cDrawnModel = this.cameraDrawnModel(
+								this.worldDrawnModel(this.model, this.position)
+							, at, eye);
+	var drawnModel = this.screenDrawnModel(
+						this.projectionDrawnModel(
+							 cDrawnModel
+						)
+					, canvas);
+	var drawnGuide = this.screenDrawnModel(
+						this.projectionDrawnModel(
+							this.cameraDrawnModel(
+								this.worldDrawnModel(this.guide, this.position)
+							, at, eye) 
+						)
+					, canvas);
+	
+	//描画する
+	var len = this.model.length;
+	var moveto = true;
+	var linecolors = ["rgb(255, 0, 0)", "rgb(255, 255, 0)", "rgb(255, 255, 255)", "rgb(0, 255, 0)", "rgb(0, 255, 255)", "rgb(0, 0, 255)" ];
+	var linecolorindex = 0;
+	canvas.strokeStyle = linecolors[linecolorindex];
+	for (var i = 0; i < len; i++) {
+		if (drawnModel[i] != null) {
+			if (moveto) {
+				canvas.beginPath();
+				canvas.moveTo(drawnModel[i].x, drawnModel[i].y);
+			}
+			else {
+				canvas.lineTo(drawnModel[i].x, drawnModel[i].y);
+			}
+			moveto = false;
+		}
+		else {
+			canvas.closePath();
+			moveto = true;
+			if (this.isObverse([cDrawnModel[i - 3], cDrawnModel[i - 2], cDrawnModel[i - 1]])) {
+				canvas.fill();
+			}
+			canvas.stroke();
+			linecolorindex++;
+			canvas.strokeStyle = linecolors[linecolorindex];
+		}
+	}
+	
+	len = this.guide.length;
+	moveto = true;
+	linecolors = ["rgba(255, 0, 0, 0.5)", "rgba(0, 0, 255, 0.5)", "rgba(0, 255, 0, 0.5)"];
+	linecolorindex = 0;
+	canvas.strokeStyle = linecolors[linecolorindex];
+	for (var i = 0; i < len; i++) {
+		if (drawnGuide[i] != null) {
+			if (moveto) {
+				canvas.beginPath();
+				canvas.moveTo(drawnGuide[i].x, drawnGuide[i].y);
+			}
+			else {
+				canvas.lineTo(drawnGuide[i].x, drawnGuide[i].y);
+			}
+			moveto = false;
+		}
+		else {
+			canvas.closePath();
+			moveto = true;
+			canvas.stroke();
+			linecolorindex++;
+			canvas.strokeStyle = linecolors[linecolorindex];
+		}
+	}
+	
+	canvas.restore();
+}
+
+Scene.prototype.worldDrawnModel = function(model, position) {
+	//行列の作成と適用 ローカル座標からワールド座標に変換
+	var mat = Matrix4x4_Identity();
+	mat.translate(position.x, position.y, position.z);
+	return this.modelAppliedMatrix(model, mat, false);
+}
+
+Scene.prototype.cameraDrawnModel = function(model, at, eye) {
+	//ワールド座標からカメラ座標(カメラを原点としたときの座標)に変換
+	var mat = Matrix4x4_ViewMatrix(at, eye);
+	return this.modelAppliedMatrix(model, mat, false);
+}
+
+Scene.prototype.projectionDrawnModel = function(model) {
+	//射影変換
+	//カメラを原点として、カメラの広さ(視錐台)を定義する。
+	//行列を噛ませた結果、中心を0として端が-1or1の数値を得ることができる。
+	//(物はワールド座標Z=0、カメラはワールド座標Z=-10に居るが、カメラから見ると物はカメラ座標Z=10にあるので、引数のnearとfarはカメラから見てZ=5～15を見る。)
+	//var mat = Matrix4x4_OrthogonalProjectionMatrix(-20, 20, 20, -20, 5, 15);
+	var mat = Matrix4x4_PerspectiveMatrix(-20, 20, 20, -20, 30, 50);
+	return this.modelAppliedMatrix(model, mat, true);
+}
+
+Scene.prototype.screenDrawnModel = function(model, canvas) {
+	//スクリーン変換
+	//射影変換した座標を元に、(いわば正規化されているのでそこに)画面の大きさを掛けてスクリーン座標を得る。
+	var mat = Matrix4x4_ViewportMatrix(canvas.canvas.width, canvas.canvas.height);
+	return this.modelAppliedMatrix(model, mat, false);
+}
+
+//行列を適用したモデルを返す
+Scene.prototype.modelAppliedMatrix = function(model, matrix, dividW) {
+	var retModel = [];
+	for (var i = 0; i < model.length; i++) {
+		if (model[i] != null) {
+			if (!dividW) {
+				retModel[i] = matrix.transform(model[i]);
+			}
+			else {
+				retModel[i] = matrix.transformW(model[i]);
+			}
+		}
+		else {
+			retModel[i] = null;
+		}
+	}
+	return retModel;
+}
+
+//3点からなる面が表か
+Scene.prototype.isObverse = function(triangleVecs) {
+	var p1 = triangleVecs[0];
+	var p2 = triangleVecs[1];
+	var p3 = triangleVecs[2];
+	var v1 = new Vector3(p1.x - p3.x, p1.y - p3.y, p1.z - p3.z);
+	var v2 = new Vector3(p2.x - p3.x, p2.y - p3.y, p2.z - p3.z);
+	var v3 = v1.cross(v2);
+	var vn = v3.normalize();
+	return vn.z < 0; //マイナス方向を向いている = こちらを向いているので、表。
+}
+
+//中心を引数で取って、十字を描くためのVector3配列を返す
+Scene.prototype.crossVertices = function(canvas, center) {
+	var width = canvas.canvas.width;
+	var height = canvas.canvas.height;
+	return [[new Vector3(center.x, 0, 0), new Vector3(center.x, height, 0)], [new Vector3(0, center.y, 0), new Vector3(width, center.y, 0)]];
+}
+
+-->
+</script>
+</head>
+<body onLoad="start()">
+<canvas id="mainCanvas" style="background-color:black;">
+図形を表示するには、canvasタグをサポートしたブラウザが必要です。
+</canvas>
+</body>
+</html>
