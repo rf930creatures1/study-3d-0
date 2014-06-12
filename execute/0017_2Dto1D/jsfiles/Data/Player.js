@@ -100,26 +100,32 @@ Player.prototype.subdraw = function(canvas, y1d) {
 		
 		//透視変換
 		//画面上が視点、画面下を注視点とし、カメラの上は画面手前
-		var fr = 0;
-		var fl = 384;
-		var near = 0;
+		//準備する変数　：p.x(x), p.y(y), far(y), near(y), fl(x), fr(x)
+		//計算で出す変数：pl(x), pr(x), 
+		var fr = -384/2; //fr,flは、カメラから見てどのくらいの範囲を視界にするか。
+		var fl = 384/2;  //
+		var near = 200;
 		var far = 512;
-		var fRight = new Vector2(fr, far - near);
-		var fLeft = new Vector2(fl, far - near);
 		for (var i = 0; i < this.model.length; i++) {
 			var p = drawnModel[i];
-			var pLeft = new Vector2();
-			var pRight = new Vector2();
+			//カメラ座標調整
+			p.x -= 384/2;
 			
-			//Far板とP板と視点から、相似の三角形を求める
-			pLeft.y = p.y;
-			pRight.y = p.y;
-			pLeft.x = fLeft.x * pRight.y / fRight.y;
-			pRight.x = fRight.x * pLeft.y / fLeft.y;
+			//PL:FL = (P.y-N):(F-N)
+			//PR:FR = (P.y-N):(F-N)
+			//上記からPLとPRを求めてから、
+			//P' = (P.x-PL)/(PR-PL) //0～1
+			//P'' = P' * 2 - 1 //-1～1
+			//上記で正規化する
+			
+			//Far板とP板とNear板から、相似の台形を求める
+			var cmpFP = (p.y - near) / (far - near);
+			var pl = fl * cmpFP;
+			var pr = fr * cmpFP;
 			
 			//ここから1次元。
 			//pLeftとpRightを使ってp.xを正規化する。
-			var pd = (p.x - pLeft.x) / (pRight.x - pLeft.x);
+			var pd = (p.x - pl) / (pr - pl);
 			//正規化したp.xを(-1～1)になるように2倍して-1する
 			pd = pd * 2 - 1;
 			
