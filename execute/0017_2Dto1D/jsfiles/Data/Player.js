@@ -29,13 +29,22 @@ function Player(x, y, radius) {
 	this.shootTags = ["player", "winner"];
 	//このタグがある弾になら当たっても平気
 	this.hitTags = ["player"];
-	
 }
 
 Player.prototype.draw = function(canvas) {
 	if (this.visible) {
 		canvas.save();
 		canvas.fillStyle = (new Color(255, 0, 255, 0)).toContextString();
+		
+		//カメラのnear板ガイド
+		canvas.stroleStyle = (new Color(255, 255, 0, 0)).toContextString();
+		canvas.beginPath();
+		var near = 200;
+		canvas.moveTo(0, near);
+		canvas.lineTo(384, near);
+		canvas.closePath();
+		canvas.stroke();
+		
 		canvas.beginPath();
 		
 		//行列の作成と適用
@@ -102,14 +111,18 @@ Player.prototype.subdraw = function(canvas, y1d) {
 		//画面上が視点、画面下を注視点とし、カメラの上は画面手前
 		//準備する変数　：p.x(x), p.y(y), far(y), near(y), fl(x), fr(x)
 		//計算で出す変数：pl(x), pr(x), 
-		var fr = -384/2; //fr,flは、カメラから見てどのくらいの範囲を視界にするか。
-		var fl = 384/2;  //
+		var nr = -384/2; //fr,flは、カメラから見てどのくらいの範囲を視界にするか。
+		var nl = 384/2;  //
 		var near = 200;
 		var far = 512;
 		for (var i = 0; i < this.model.length; i++) {
 			var p = drawnModel[i];
 			//カメラ座標調整
 			p.x -= 384/2;
+			
+			//視点からnearと視点からfarの比率から、far板端を求める
+			var fr = nr * far / near;
+			var fl = nl * far / near;
 			
 			//PL:FL = (P.y-N):(F-N)
 			//PR:FR = (P.y-N):(F-N)
@@ -119,9 +132,11 @@ Player.prototype.subdraw = function(canvas, y1d) {
 			//上記で正規化する
 			
 			//Far板とP板とNear板から、相似の台形を求める
-			var cmpFP = (p.y - near) / (far - near);
+			//-0のところを、前は-nearにしていたが、では、-nearが必要なときとはどのような状況なのか。
+			var cmpFP = (p.y - 0) / (far - 0);
 			var pl = fl * cmpFP;
 			var pr = fr * cmpFP;
+			
 			
 			//ここから1次元。
 			//pLeftとpRightを使ってp.xを正規化する。
