@@ -33,6 +33,9 @@ function Ammo(x, y, radius, moveSpeed, moveVector, disableTags, color) {
 	//弾の色
 	if (color == null) color = new Color(255, 255, 0, 0);
 	this.color = color;
+	
+	//射影変換後の表示位置
+	this.subdrawPosition = null;
 }
 
 Ammo.prototype.draw = function(canvas) {
@@ -62,11 +65,13 @@ Ammo.prototype.draw = function(canvas) {
 	}
 }
 
-Ammo.prototype.subdraw = function(canvas, y1d) {
+Ammo.prototype.subDrawModel = function(canvas, y1d) {
 	if (this.visible) {
+		/*
 		canvas.save();
 		canvas.strokeStyle = this.color.toContextString();
 		canvas.beginPath();
+		*/
 		
 		//行列の作成と適用
 		var mat = Matrix2x3_Identity();
@@ -100,6 +105,7 @@ Ammo.prototype.subdraw = function(canvas, y1d) {
 		}*/
 		
 		//透視変換
+		/*
 		var fr = 384;
 		var fl = 0;
 		var near = 0;
@@ -127,18 +133,74 @@ Ammo.prototype.subdraw = function(canvas, y1d) {
 			var width = 384;
 			drawnModel[i].x = (pd + 1) * (width / 2);
 			drawnModel[i].y = y1d;
+		}*/
+		var nr = -384/2; //nr,nl,fr,flは、カメラから見てどのくらいの範囲を視界にするか。
+		var nl = 384/2;  //
+		var near = 200;
+		var far = 512;
+		for (var i = 0; i < this.model.length; i++) {
+			var p = drawnModel[i];
+			//カメラ座標調整
+			p.x -= 384/2;
+			
+			//視点からnearと視点からfarの比率から、far板端を求める
+			var fr = nr * far / near;
+			var fl = nl * far / near;
+			
+			//PL:FL = (P.y-N):(F-N)
+			//PR:FR = (P.y-N):(F-N)
+			//上記からPLとPRを求めてから、
+			//P' = (P.x-PL)/(PR-PL) //0～1
+			//P'' = P' * 2 - 1 //-1～1
+			//上記で正規化する
+			
+			//Far板とP板とNear板から、相似の台形を求める
+			//-0のところを、前は-nearにしていたが、では、-nearが必要なときとはどのような状況なのか。
+			var cmpFP = (p.y - 0) / (far - 0);
+			var pl = fl * cmpFP;
+			var pr = fr * cmpFP;
+			
+			
+			//ここから1次元。
+			//pLeftとpRightを使ってp.xを正規化する。
+			var pd = (p.x - pl) / (pr - pl);
+			//正規化したp.xを(-1～1)になるように2倍して-1する
+			pd = pd * 2 - 1;
+			
+			//スクリーン座標へ
+			var width = 384;
+			drawnModel[i].x = (pd + 1) * (width / 2);
+			//drawnModel[i].y = y1d;
 		}
-				
+		
+		/*
 		//弾は十字に描く
 		for (var i = 0; i < 2; i++) {
-			canvas.moveTo(drawnModel[i * 2].x, drawnModel[i * 2].y);
-			canvas.lineTo(drawnModel[i * 2 + 1].x, drawnModel[i * 2].y);
+			canvas.moveTo(drawnModel[i * 2].x, y1d);
+			canvas.lineTo(drawnModel[i * 2 + 1].x, y1d);
 		}
 		
 		canvas.closePath();
 		canvas.stroke();
 		canvas.restore();
+		*/
+		this.subdrawPosition = drawnModel;
 	}
+}
+
+Ammo.prototype.subdraw = function(canvas, y1d) {
+	canvas.save();
+	canvas.strokeStyle = this.color.toContextString();
+	canvas.beginPath();
+		
+	for (var i = 0; i < 2; i++) {
+		canvas.moveTo(this.subdrawPosition[i * 2].x, y1d);
+		canvas.lineTo(this.subdrawPosition[i * 2 + 1].x, y1d);
+	}
+		
+	canvas.closePath();
+	canvas.stroke();
+	canvas.restore();
 }
 
 Ammo.prototype.move = function() {
@@ -152,7 +214,7 @@ Ammo.prototype.move = function() {
 	
 	//表示切り替え
 	this.visible = this.position.x >= 0 - this.radius && this.position.x < 384 + this.radius &&
-					this.position.y >= 0 - this.radius && this.position.y < 512 + this.radius;
+					this.position.y >= 200 - this.radius && this.position.y < 512 + this.radius;
 }
 
 Ammo.prototype.isCrash = function(target, radius) {

@@ -32,14 +32,31 @@ Scene0.prototype.disp = function(canvas) {
 
 Scene0.prototype.subdisp = function(canvas) {
 	var y1d = 2; //1次元座標を2次元座標で表示するから、表示用のYを適当に決める。
+	var models = [];
 	
 	for (var i in this.ammos) {
 		var ammo = this.ammos[i];
 		if (ammo != null) {
-			ammo.subdraw(canvas, y1d);
+			ammo.subDrawModel(canvas, y1d);
+			models.push(ammo);
 		}
 	}
-	this.player.subdraw(canvas, y1d);
+	
+	this.player.subDrawModel(canvas, y1d);
+	models.push(this.player);
+	
+	models.sort(
+		function(a, b){
+			if (a.subdrawPosition[0].y < b.subdrawPosition[0].y) return 1;
+			if (a.subdrawPosition[0].y > b.subdrawPosition[0].y) return -1;
+			return 0;
+		}
+	);
+	
+	for (var i = 0; i < models.length; i++) {
+		models[i].subdraw(canvas, y1d);
+	}
+
 }
 
 Scene0.prototype.step = function() {
@@ -57,8 +74,8 @@ Scene0.prototype.step = function() {
 		//移動
 		this.enemy.move();
 		//ショット
-		//var shot = this.enemy.shot();
-		//if (shot != null) this.ammos.push(shot);
+		var shot = this.enemy.shot();
+		if (shot != null) this.ammos.push(shot);
 	}
 	
 	//弾の移動
@@ -72,7 +89,7 @@ Scene0.prototype.step = function() {
 			if (ammo.visible) {
 				//あたり判定
 				if (this.player.visible && !ammo.isDisable(this.player.hitTags) && ammo.isCrash(this.player.position, 3)) {
-					this.player.hit();
+					//this.player.hit();
 					ammo.visible = false;
 					//敵が勝ったら、敵に対する自機の弾のあたり判定を無効にする。
 					this.enemy.hitTags.push("winner");

@@ -29,6 +29,9 @@ function Player(x, y, radius) {
 	this.shootTags = ["player", "winner"];
 	//このタグがある弾になら当たっても平気
 	this.hitTags = ["player"];
+	
+	//射影変換後の表示位置
+	this.subdrawPosition = null;
 }
 
 Player.prototype.draw = function(canvas) {
@@ -70,11 +73,13 @@ Player.prototype.draw = function(canvas) {
 	}
 }
 
-Player.prototype.subdraw = function(canvas, y1d) {
+Player.prototype.subDrawModel = function(canvas, y1d) {
 	if (this.visible) {
+		/*
 		canvas.save();
 		canvas.strokeStyle = (new Color(255, 0, 255, 0)).toContextString();
 		canvas.beginPath();
+		*/
 		
 		//行列の作成と適用
 		var mat = Matrix2x3_Identity();
@@ -111,7 +116,7 @@ Player.prototype.subdraw = function(canvas, y1d) {
 		//画面上が視点、画面下を注視点とし、カメラの上は画面手前
 		//準備する変数　：p.x(x), p.y(y), far(y), near(y), fl(x), fr(x)
 		//計算で出す変数：pl(x), pr(x), 
-		var nr = -384/2; //fr,flは、カメラから見てどのくらいの範囲を視界にするか。
+		var nr = -384/2; //nr,nl,fr,flは、カメラから見てどのくらいの範囲を視界にするか。
 		var nl = 384/2;  //
 		var near = 200;
 		var far = 512;
@@ -147,22 +152,43 @@ Player.prototype.subdraw = function(canvas, y1d) {
 			//スクリーン座標へ
 			var width = 384;
 			drawnModel[i].x = (pd + 1) * (width / 2);
-			drawnModel[i].y = y1d;
+			//drawnModel[i].y = y1d;
 		}
 		
 		//自機は三角形を描く
+		/*
 		var len = this.model.length;
 		for (var i = 0; i < len; i++) {
 			if (i == 0) {
-				canvas.moveTo(drawnModel[i % len].x, drawnModel[i % len].y);
+				canvas.moveTo(drawnModel[i % len].x, y1d);
 			}
-			canvas.lineTo(drawnModel[(i + 1) % len].x, drawnModel[i % len].y);
+			canvas.lineTo(drawnModel[(i + 1) % len].x, y1d);
 		}
 		
 		canvas.closePath();
 		canvas.stroke();
 		canvas.restore();
+		*/
+		this.subdrawPosition = drawnModel;
 	}
+}
+
+Player.prototype.subdraw = function(canvas, y1d) {
+	canvas.save();
+	canvas.strokeStyle = (new Color(255, 0, 255, 0)).toContextString();
+	canvas.beginPath();
+	
+	var len = this.subdrawPosition.length;
+	for (var i = 0; i < len; i++) {
+		if (i == 0) {
+			canvas.moveTo(this.subdrawPosition[i % len].x, y1d);
+		}
+		canvas.lineTo(this.subdrawPosition[(i + 1) % len].x, y1d);
+	}
+	
+	canvas.closePath();
+	canvas.stroke();
+	canvas.restore();
 }
 
 Player.prototype.move = function(keyInput) {
