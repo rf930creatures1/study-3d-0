@@ -77,6 +77,18 @@ Matrix2x3.prototype.transform = function(vec2) {
 					   this.m21 * vec2.x + this.m22 * vec2.y + this.m23 * 1);
 }
 
+Matrix2x3.prototype.transformW = function(vec2) {
+	var ret = this.transform(vec2);
+	var m31 = 0;
+	var m32 = 1;
+	var m33 = 0;
+	var w = m31 * vec2.x + m32 * vec2.y + m33;
+	var _w = 1 / w;
+	ret.x *= _w;
+	ret.y *= _w;
+	return ret;
+}
+
 //行列同士の掛け算
 Matrix2x3.prototype.multiply = function(mat2x3) {
 	//コピーコンストラクタを実行
@@ -116,5 +128,12 @@ function Matrix2x3_Zero() {
 }
 
 function Matrix2x3_OrthogonalProjectionMatrix(left, right) {
-	return Matrix2x3_Set(2 / (right - left), 0, -1, 0, 0, 0);
+	return Matrix2x3_Set(2 / (right - left), 0, -((right + left) / (right - left)), 0, 2 / (top - bottom), -((top + bottom) / (top - bottom)));
+}
+
+//透視投影変換行列
+function Matrix4x4_PerspectiveMatrix(left, right, near, far) {
+	// http://marina.sys.wakayama-u.ac.jp/~tokoi/?date=20090829
+	return Matrix2x3_Set(2 * near / (right - left), -(right + left) / (right - left), 0, 
+						 0, (far + near) / (far - near), -((2 * far * near) / (far - near)));
 }

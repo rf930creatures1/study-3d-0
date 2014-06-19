@@ -120,6 +120,7 @@ Player.prototype.subDrawModel = function(canvas, y1d) {
 		var nl = 384/2;  //
 		var near = 200;
 		var far = 512;
+		/*
 		for (var i = 0; i < this.model.length; i++) {
 			var p = drawnModel[i];
 			//カメラ座標調整
@@ -153,6 +154,14 @@ Player.prototype.subDrawModel = function(canvas, y1d) {
 			var width = 384;
 			drawnModel[i].x = (pd + 1) * (width / 2);
 			//drawnModel[i].y = y1d;
+		}*/
+		var pMat = Matrix4x4_PerspectiveMatrix(nl, nr, near, far);
+		var wDrawnModel = drawnModel;
+		var drawnModel = [];
+		for (var i = 0; i < wDrawnModel.length; i++) {
+			wDrawnModel[i].x -= 384/2; //カメラ座標調整
+			drawnModel[i] = pMat.transformW(wDrawnModel[i]);
+			drawnModel[i].x = (drawnModel[i].x + 1) * (384 / 2);
 		}
 		
 		//自機は三角形を描く
