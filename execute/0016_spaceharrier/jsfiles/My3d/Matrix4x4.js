@@ -164,9 +164,9 @@ function Matrix4x4_ViewMatrix(at, eye) { // at:注視点(カメラの向き), ey
 	var yaxis = zaxis.cross(xaxis);                      // Vector3.Cross(zaxis, xaxis);
 	//左手系の場合。右手系ならreturnでセットしている行列の順番を縦横入れ替えること。
 	return Matrix4x4_Set(
-		xaxis.x, xaxis.y, xaxis.z, xaxis.dot(eye),
-		yaxis.x, yaxis.y, yaxis.z, yaxis.dot(eye),
-		zaxis.x, zaxis.y, zaxis.z, zaxis.dot(eye),
+		xaxis.x, xaxis.y, xaxis.z, -xaxis.dot(eye),
+		yaxis.x, yaxis.y, yaxis.z, -yaxis.dot(eye),
+		zaxis.x, zaxis.y, zaxis.z, -zaxis.dot(eye),
 		0, 0, 0, 1 
 	);
 }
@@ -174,19 +174,20 @@ function Matrix4x4_ViewMatrix(at, eye) { // at:注視点(カメラの向き), ey
 //正射影行列
 function Matrix4x4_OrthogonalProjectionMatrix(left, right, top, bottom, near, far) {
 	// http://marina.sys.wakayama-u.ac.jp/~tokoi/?date=20090829
-	return Matrix4x4_Set(2 / (right - left), 0, 0, (right + left) / (right - left), 
-						 0, 2 / (top - bottom), 0, (top + bottom) / (top - bottom), 
-						 0, 0, -2 / (far - near), (far + near) / (far - near), 
+	return Matrix4x4_Set(2 / (right - left), 0, 0, -((right + left) / (right - left)), 
+						 0, 2 / (top - bottom), 0, -((top + bottom) / (top - bottom)), 
+						 0, 0, 2 / (far - near), -((far + near) / (far - near)), 
 						 0, 0, 0, 1);
 }
 
 //透視投影変換行列
 function Matrix4x4_PerspectiveMatrix(left, right, top, bottom, near, far) {
 	// http://marina.sys.wakayama-u.ac.jp/~tokoi/?date=20090829
-	return Matrix4x4_Set(2 * near / (right - left), 0, (right + left) / (right - left), 0, 
-						 0, 2 * near / (top - bottom), (top + bottom) / (top - bottom), 0, 
-						 0, 0, -((far + near) / (far - near)), -((2 * far * near) / (far - near)), 
-						 0, 0, -1, 0);
+	return Matrix4x4_Set(2 * near / (right - left), 0, -(right + left) / (right - left), 0, 
+						 0, 2 * near / (top - bottom), -(top + bottom) / (top - bottom), 0, 
+						 0, 0, (far + near) / (far - near), -((2 * far * near) / (far - near)), 
+						 0, 0, 1, 0);
+						 //もしかしたらカメラ行列はやっぱりeye-atでしたとかになるかもしれない。
 }
 
 //ビューポート行列 (スクリーン座標への変換)

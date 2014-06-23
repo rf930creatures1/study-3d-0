@@ -43,14 +43,15 @@ function Ammo(x, y, z, radius, moveSpeed, moveVector, disableTags, color) {
 Ammo.prototype.WorldVertexModel = function() {
 	var wMat = Matrix4x4_Identity();
 	wMat.translate(this.position.x, this.position.y, this.position.z);
+	wMat.rotateZ(CircleCalculator.toRadian(this.rotation));
 	this.model.World(wMat);
 }
 
 Ammo.prototype.draw = function(canvas) {
 	if (this.visible) {
 		canvas.save();
-		canvas.strokeStyle = "rgb(0, 0, 255)";
-		canvas.fillStyle = "rgb(0, 0, 128)";
+		canvas.strokeStyle = this.color.toContextString();
+		canvas.fillStyle = this.color.toContextString();
 		this.model.draw(canvas);
 		canvas.restore();
 	}
@@ -66,7 +67,7 @@ Ammo.prototype.move = function() {
 	this.position.offset(this.moveSpeed);
 	
 	//表示切り替え
-	this.visible = true;
+	this.visible = this.position.z > -30 && this.position.z < 400;
 	//this.visible = this.position.x >= 0 - this.radius && this.position.x < 384 + this.radius &&
 	//				this.position.y >= 0 - this.radius && this.position.y < 512 + this.radius;
 }

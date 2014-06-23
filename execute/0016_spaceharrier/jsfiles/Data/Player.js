@@ -34,7 +34,6 @@ function Player(x, y, z, radius) {
 	this.shootTags = ["player", "winner"];
 	//このタグがある弾になら当たっても平気
 	this.hitTags = ["player"];
-	
 }
 
 //ワールド座標をセットする
@@ -46,49 +45,55 @@ Player.prototype.WorldVertexModel = function() {
 
 //描画
 Player.prototype.draw = function(canvas) {
-	canvas.save();
-	canvas.strokeStyle = "rgb(255, 0, 0)";
-	canvas.fillStyle = "rgb(128, 0, 0)";
-	this.model.draw(canvas);
-	canvas.restore();
+	if (this.visible) {
+		canvas.save();
+		canvas.strokeStyle = "rgb(255, 0, 0)";
+		canvas.fillStyle = "rgb(128, 0, 0)";
+		this.model.draw(canvas);
+		canvas.restore();
+	}
 }
 
 Player.prototype.move = function(keyInput) {
-	if (keyInput.left) {
-		if (this.position.x - this.radius > -384/2) {
-			this.position.x -= this.moveSpeed;
+	if (this.visible) {
+		if (keyInput.left) {
+			if (this.position.x - this.radius > -384/2) {
+				this.position.x -= this.moveSpeed;
+			}
 		}
-	}
-	else if (keyInput.right) {
-		if (this.position.x + this.radius < 384/2) {
-			this.position.x += this.moveSpeed;
+		else if (keyInput.right) {
+			if (this.position.x + this.radius < 384/2) {
+				this.position.x += this.moveSpeed;
+			}
 		}
-	}
-	if (keyInput.up) {
-		if (this.position.y + this.radius < 384/2) {
-			this.position.y += this.moveSpeed;
+		if (keyInput.up) {
+			if (this.position.y + this.radius < 384/2) {
+				this.position.y += this.moveSpeed;
+			}
 		}
-	}
-	else if (keyInput.down) {
-		if (this.position.y - this.radius > -384/2) {
-			this.position.y -= this.moveSpeed;
+		else if (keyInput.down) {
+			if (this.position.y - this.radius > -384/2) {
+				this.position.y -= this.moveSpeed;
+			}
 		}
 	}
 }
 
 Player.prototype.shot = function(keyInput) {
 	this.shotTime += FPS;
-	if (keyInput.space) {
-		if (this.shotTime >= this.shotInterval) {
-			this.shotTime = 0;
-			return new Ammo(this.position.x, 
-							this.position.y, 
-							this.position.z, 
-							5, 
-							120, 
-							new Vector3(0, 0, 1), 
-							this.shootTags,
-							new Color(255, 0, 0, 255));
+	if (this.visible) {
+		if (keyInput.space) {
+			if (this.shotTime >= this.shotInterval) {
+				this.shotTime = 0;
+				return new Ammo(this.position.x, 
+								this.position.y, 
+								this.position.z, 
+								5, 
+								120, 
+								new Vector3(0, 0, 1), 
+								this.shootTags,
+								new Color(255, 0, 0, 255));
+			}
 		}
 	}
 	return null;

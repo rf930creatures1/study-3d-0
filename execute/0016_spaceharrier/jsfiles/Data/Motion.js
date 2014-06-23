@@ -18,11 +18,11 @@ Motion.InfinityShape = function(t) {
 	degree *= clockwise;
 	
 	var radian = CircleCalculator.toRadian(degree);
-	var ret = new Vector2(Math.cos(radian) - clockwise, 
-						  Math.sin(radian) );
+	var ret = new Vector3(Math.cos(radian) - clockwise, 
+						  Math.sin(radian), 0 );
 	return ret;
 }
 
 Motion.HorizontalRoundTrip = function(t) {
-	return new Vector2(Math.sin(t * Math.PI * 2), 0);
+	return new Vector3(Math.sin(t * Math.PI * 2), 0, 0);
 }

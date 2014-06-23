@@ -3,15 +3,17 @@
 //=======================
 function Scene0(gameManager) {
 	GameScene.call(this, gameManager);
-	/*
+
 	//敵の位置へ、生成タイミングは一定期間置きつつのランダムで、噴射してみたい
-	this.enemy = new TentacleBoldPendulumEnemy(384/2, 100, 30, 150, new Color(255, 255, 0, 255));
-	this.enemy.visible = true;
-	*/
+	
+	this.enemies = [];
+	
 	this.ammos = [];
 	
 	//自機
 	this.player = new Player(0, 0, 0);
+	
+	this.guide3d = new Guide3d(50);
 	
 	this.time = 0;
 }
@@ -39,6 +41,12 @@ Scene0.prototype.disp = function(canvas) {
 			characters.push(ammo);
 		}
 	}
+	for (var i in this.enemies) {
+		var enemy = this.enemies[i];
+		if (enemy != null) {
+			characters.push(enemy);
+		}
+	}
 	characters.push(this.player);
 	
 	//キャラクタのワールド座標をセットする
@@ -48,16 +56,18 @@ Scene0.prototype.disp = function(canvas) {
 	
 	//カメラを作る
 	var at = new Vector3(0, 0, 0);					//注視点(カメラの向き)
-	var eye = new Vector3(0, 0, -50);		//視点	(カメラの場所)
-	//var eyeMat = Matrix4x4_Identity();
-	//eyeMat.rotateY(CircleCalculator.toRadian(70));
+	var eye = new Vector3(0, 0, 0);					//視点	(カメラの場所)
+	var eyeMat = Matrix4x4_Identity();
+	//eyeMat.rotateY(CircleCalculator.toRadian(-90));
 	//eyeMat.rotateX(CircleCalculator.toRadian(15));
-	//eye = eyeMat.transform(eye);
+	//eyeMat.rotateX(CircleCalculator.toRadian(180));
+	eyeMat.translate(0, 0, -30);
+	eye = eyeMat.transform(eye);
 	
 	//3Dto2D変換してキャラクタのモデルに値を保持する
 	for (var i in characters) {
 		characters[i].model.Camera(at, eye);
-		characters[i].model.Perspective(-384/2, 384/2, 384/2, -384/2, 50, 100);
+		characters[i].model.Perspective(-384/2, 384/2, 384/2, -384/2, 30, 70);
 		characters[i].model.Screen(canvas);
 	}
 	
@@ -66,6 +76,8 @@ Scene0.prototype.disp = function(canvas) {
 		characters[i].draw(canvas);
 	}
 	
+	//3dガイドライン
+	this.guide3d.draw(canvas, at, eye, -384/2, 384/2, 384/2, -384/2, 30, 70);
 }
 
 Scene0.prototype.step = function() {
@@ -78,24 +90,33 @@ Scene0.prototype.step = function() {
 		if (myshot != null) this.ammos.push(myshot);
 	}
 	
-/*
-	//敵の状態
-	if (this.enemy.visible) {
-		//移動
-		this.enemy.move();
-		//ショット
-		var shot = this.enemy.shot();
-		if (shot != null) this.ammos.push(shot);
+	//敵をランダム生成
+	if (Math.floor(Math.random() * 30) == 0) {
+		this.enemies.push(new Enemy(Math.floor(Math.random() * 384 - 192), Math.floor(Math.random() * 384 - 192), 100, 30, 2, new Color(255, 255, 0, 255)));
 	}
 	
-*/
+	//敵の状態
+	var aliveEnemies = [];
+	for (var i in this.enemies) {
+		var enemy = this.enemies[i];
+		if (enemy.visible) {
+			//移動
+			enemy.move();
+			//ショット
+			var shot = enemy.shot();
+			if (shot != null) this.ammos.push(shot);
+			aliveEnemies.push(enemy);
+		}
+	}
+	this.enemies = aliveEnemies;
+	
 	//弾の移動
 	var aliveAmmos = [];
 	for (var i in this.ammos) {
 		var ammo = this.ammos[i];
 		if (ammo != null) {
 			//移動する
-			ammo.move();/*
+			ammo.move();
 			//まだ描画対象ならば、
 			if (ammo.visible) {
 				//あたり判定
@@ -103,23 +124,33 @@ Scene0.prototype.step = function() {
 					this.player.hit();
 					ammo.visible = false;
 					//敵が勝ったら、敵に対する自機の弾のあたり判定を無効にする。
-					this.enemy.hitTags.push("winner");
-				}
-				else if (this.enemy.visible && !ammo.isDisable(this.enemy.hitTags) && ammo.isCrash(this.enemy.position, this.enemy.radius)) {
-					this.enemy.hit();
-					ammo.visible = false;
-					//敵に勝ったら、自機に対する敵の弾のあたり判定を無効にする。
-					if (!this.enemy.visible) {
-						this.player.hitTags.push("winner");
+					for (var j in this.enemies) {
+						var enemy = this.enemies[j];
+						enemy.hitTags.push("winner");
 					}
 				}
 				else {
-					//当たってないのなら、
-					//次の描画対象にする
-					aliveAmmos.push(ammo);
+					var hit = false;
+					for (var j in this.enemies) {
+						var enemy = this.enemies[j];
+						if (enemy.visible && !ammo.isDisable(enemy.hitTags) && ammo.isCrash(enemy.position, enemy.radius)) {
+							enemy.hit();
+							ammo.visible = false;
+							//敵に勝ったら、自機に対する敵の弾のあたり判定を無効にする。
+							if (!enemy.visible) {
+								this.player.hitTags.push("winner");
+							}
+							hit = true;
+							break;
+						}
+					}
+					if (!hit) {
+						//当たってないのなら、
+						//次の描画対象にする
+						aliveAmmos.push(ammo);
+					}
 				}
-			}*/
-					aliveAmmos.push(ammo);
+			}
 		}
 	}
 	this.ammos = aliveAmmos;
