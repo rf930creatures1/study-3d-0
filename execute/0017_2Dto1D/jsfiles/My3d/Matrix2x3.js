@@ -132,8 +132,7 @@ function Matrix2x3_OrthogonalProjectionMatrix(left, right) {
 }
 
 //透視投影変換行列
-function Matrix4x4_PerspectiveMatrix(left, right, near, far) {
-	// http://marina.sys.wakayama-u.ac.jp/~tokoi/?date=20090829
+function Matrix2x3_PerspectiveMatrix(left, right, near, far) {
 	return Matrix2x3_Set(2 * near / (right - left), -(right + left) / (right - left), 0, 
 						 0, (far + near) / (far - near), -((2 * far * near) / (far - near)));
 }

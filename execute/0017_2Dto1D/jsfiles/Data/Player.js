@@ -155,7 +155,7 @@ Player.prototype.subDrawModel = function(canvas, y1d) {
 			drawnModel[i].x = (pd + 1) * (width / 2);
 			//drawnModel[i].y = y1d;
 		}*/
-		var pMat = Matrix4x4_PerspectiveMatrix(nl, nr, near, far);
+		var pMat = Matrix2x3_PerspectiveMatrix(nl, nr, near, far);
 		var wDrawnModel = drawnModel;
 		var drawnModel = [];
 		for (var i = 0; i < wDrawnModel.length; i++) {

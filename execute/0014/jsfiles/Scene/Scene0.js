@@ -7,6 +7,8 @@ function Scene0(gameManager) {
 }
 Scene0.prototype = new GameScene(this.gManager);
 Scene0.prototype.init = function() {
+	this.guide3d = new Guide3d(50);
+	
 	//位置データ (ワールド座標)
 	this.position = new Vector3(0, 0, 0);
 	
@@ -41,6 +43,11 @@ Scene0.prototype.init = function() {
 	this.mouseOX = 0;
 	//マウスが押される直前のyrot
 	this.gyrot = 0;
+	
+	//投影変換どちらを使うか spaceキーで切り替え
+	this.seisyaei = true;
+	//space押しっぱなしでぱっぱと変更しないように、投影変換できるかフラグ
+	this.seisyaeiChangePermissition = true;
 }
 
 Scene0.prototype.disp = function(canvas) {
@@ -67,7 +74,8 @@ Scene0.prototype.disp = function(canvas) {
 	var eye = new Vector3(0, 0, -50);		//視点	(カメラの場所)
 	var eyeMat = Matrix4x4_Identity();
 	eyeMat.rotateY(CircleCalculator.toRadian(this.yrot));
-	eyeMat.rotateX(CircleCalculator.toRadian(20));
+	eyeMat.rotateX(CircleCalculator.toRadian(20)); //正射影のとき0以下だとZ軸が反転するのはなぜ？
+	eyeMat.rotateZ(CircleCalculator.toRadian(20)); //Z軸回転ができない？
 	eye = eyeMat.transform(eye);
 	var cMat = Matrix4x4_ViewMatrix(at, eye);
 	var cDrawnModel = [];
@@ -84,8 +92,13 @@ Scene0.prototype.disp = function(canvas) {
 	//カメラを原点として、カメラの広さ(視錐台)を定義する。
 	//行列を噛ませた結果、中心を0として端が-1or1の数値を得ることができる。
 	//(物はワールド座標Z=0、カメラはワールド座標Z=-10に居るが、カメラから見ると物はカメラ座標Z=10にあるので、引数のnearとfarはカメラから見てZ=5～15を見る。)
-	//var pMat = Matrix4x4_OrthogonalProjectionMatrix(-20, 20, 20, -20, 5, 15);
-	var pMat = Matrix4x4_PerspectiveMatrix(-20, 20, 20, -20, 30, 50);
+	var pMat = null;
+	if (this.seisyaei) {
+		pMat = Matrix4x4_OrthogonalProjectionMatrix(-20, 20, 20, -20, 5, 15);
+	}
+	else {
+		pMat = Matrix4x4_PerspectiveMatrix(-20, 20, 20, -20, 30, 50);
+	}
 	var pDrawnModel = [];
 	for (var i = 0; i < this.model.length; i++) {
 		if (cDrawnModel[i] != null) {
@@ -136,6 +149,10 @@ Scene0.prototype.disp = function(canvas) {
 	}
 	
 	canvas.restore();
+	
+	
+	//3dガイドライン
+	this.guide3d.draw(canvas, at, eye, true, -20, 20, 20, -20, 30, 50);
 }
 
 Scene0.prototype.step = function() {
@@ -155,6 +172,22 @@ Scene0.prototype.step = function() {
 		}
 		else if (this.gManager.keyInput.right) {
 			this.yrot -= 40 * FPS;
+		}
+		if (this.gManager.keyInput.up) {
+			this.position.z += 50 * FPS;
+		}
+		else if (this.gManager.keyInput.down) {
+			this.position.z -= 50 * FPS;
+		}
+		if (this.gManager.keyInput.space) {
+			if (this.seisyaeiChangePermissition) {
+				this.seisyaei = !this.seisyaei;
+			}
+			//一回離すのを待つ
+			this.seisyaeiChangePermissition = false;
+		}
+		else {
+			this.seisyaeiChangePermissition = true;
 		}
 	}
 	this.mouseButton = this.gManager.keyInput.mouseButton;

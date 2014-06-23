@@ -159,7 +159,7 @@ function Matrix4x4_Zero() {
 //ビュー行列 (ワールド座標からカメラ座標にフィルタするための行列)
 function Matrix4x4_ViewMatrix(at, eye) { // at:注視点(カメラの向き), eye:視点(カメラの場所)
 	var cameraUpVector = new Vector3(0, 1, 0);           // カメラの視点から "上" の方向。通常(0, 1, 0)でよい。
-	var zaxis = eye.subtract(at).normalize();            // Vector3.normalize(eye-at);//左手系のときは(eye-at)、右手系のときは(at-eye)。
+	var zaxis = at.subtract(eye).normalize();            // Vector3.normalize(eye-at);//左手系のときは(eye-at)、右手系のときは(at-eye)。
 	var xaxis = cameraUpVector.cross(zaxis).normalize(); // Vector3.normalize(Vector3.cross(new Vector3(0, 1, 0), zaxis));
 	var yaxis = zaxis.cross(xaxis);                      // Vector3.Cross(zaxis, xaxis);
 	//左手系の場合。右手系ならreturnでセットしている行列の順番を縦横入れ替えること。
@@ -174,19 +174,19 @@ function Matrix4x4_ViewMatrix(at, eye) { // at:注視点(カメラの向き), ey
 //正射影行列
 function Matrix4x4_OrthogonalProjectionMatrix(left, right, top, bottom, near, far) {
 	// http://marina.sys.wakayama-u.ac.jp/~tokoi/?date=20090829
-	return Matrix4x4_Set(2 / (right - left), 0, 0, (right + left) / (right - left), 
-						 0, 2 / (top - bottom), 0, (top + bottom) / (top - bottom), 
-						 0, 0, -2 / (far - near), (far + near) / (far - near), 
+	return Matrix4x4_Set(2 / (right - left), 0, 0, -(right + left) / (right - left), 
+						 0, 2 / (top - bottom), 0, -(top + bottom) / (top - bottom), 
+						 0, 0, 2 / (far - near), -(far + near) / (far - near), 
 						 0, 0, 0, 1);
 }
 
 //透視投影変換行列
 function Matrix4x4_PerspectiveMatrix(left, right, top, bottom, near, far) {
 	// http://marina.sys.wakayama-u.ac.jp/~tokoi/?date=20090829
-	return Matrix4x4_Set(2 * near / (right - left), 0, (right + left) / (right - left), 0, 
-						 0, 2 * near / (top - bottom), (top + bottom) / (top - bottom), 0, 
-						 0, 0, -((far + near) / (far - near)), -((2 * far * near) / (far - near)), 
-						 0, 0, -1, 0);
+	return Matrix4x4_Set(2 * near / (right - left), 0, -(right + left) / (right - left), 0, 
+						 0, 2 * near / (top - bottom), -(top + bottom) / (top - bottom), 0, 
+						 0, 0, ((far + near) / (far - near)), -((2 * far * near) / (far - near)), 
+						 0, 0, 1, 0);
 }
 
 //ビューポート行列 (スクリーン座標への変換)

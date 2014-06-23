@@ -69,6 +69,10 @@ Scene0.prototype.step = function() {
 		if (myshot != null) this.ammos.push(myshot);
 	}
 	
+	var testvec = new Vector2(0, 1); //カメラ座標
+	var testmat = Matrix2x3_PerspectiveMatrix(-10, 10, -10, 10);
+	var rtestvec = testmat.transformW(testvec);
+	
 	//敵の状態
 	if (this.enemy.visible) {
 		//移動
