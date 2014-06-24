@@ -29,7 +29,7 @@ function Enemy(x, y, z, radius, hp, color) {
 	this.zmoved = 0;
 	
 	//何秒間隔で弾を撃つか
-	this.shotInterval = 0.5;
+	this.shotInterval = 0.2;
 	this.shotTime = 0;
 	
 	//ショットの角度

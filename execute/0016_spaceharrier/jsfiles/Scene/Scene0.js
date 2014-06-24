@@ -54,20 +54,28 @@ Scene0.prototype.disp = function(canvas) {
 		characters[i].WorldVertexModel();
 	}
 	
+	//カメラ用スクロール情報を作る
+	var charaMoveRange = 384;
+	var nearPlaneWidth = 300;
+	var cameraMoveRange = charaMoveRange - nearPlaneWidth;
+	var eyeX = this.player.position.x * cameraMoveRange / charaMoveRange;
+	var eyeY = this.player.position.y * cameraMoveRange / charaMoveRange;
+	
 	//カメラを作る
-	var at = new Vector3(0, 0, 0);					//注視点(カメラの向き)
-	var eye = new Vector3(0, 0, 0);					//視点	(カメラの場所)
+	var atMat = Matrix4x4_Identity();
 	var eyeMat = Matrix4x4_Identity();
 	//eyeMat.rotateY(CircleCalculator.toRadian(-90));
 	//eyeMat.rotateX(CircleCalculator.toRadian(15));
 	//eyeMat.rotateX(CircleCalculator.toRadian(180));
-	eyeMat.translate(0, 0, -30);
-	eye = eyeMat.transform(eye);
+	atMat.translate(eyeX, eyeY, 0);
+	eyeMat.translate(eyeX, eyeY, -30);
+	at = atMat.transform(new Vector3(0, 0, 0)); //注視点(カメラの向き)
+	eye = eyeMat.transform(new Vector3(0, 0, 0)); //視点	(カメラの場所)
 	
 	//3Dto2D変換してキャラクタのモデルに値を保持する
 	for (var i in characters) {
 		characters[i].model.Camera(at, eye);
-		characters[i].model.Perspective(-384/2, 384/2, 384/2, -384/2, 30, 70);
+		characters[i].model.Perspective(-nearPlaneWidth/2, nearPlaneWidth/2, nearPlaneWidth/2, -nearPlaneWidth/2, 30, 70);
 		characters[i].model.Screen(canvas);
 	}
 	
@@ -77,7 +85,7 @@ Scene0.prototype.disp = function(canvas) {
 	}
 	
 	//3dガイドライン
-	this.guide3d.draw(canvas, at, eye, -384/2, 384/2, 384/2, -384/2, 30, 70);
+	this.guide3d.draw(canvas, at, eye, -nearPlaneWidth/2, nearPlaneWidth/2, nearPlaneWidth/2, -nearPlaneWidth/2, 30, 70);
 }
 
 Scene0.prototype.step = function() {
@@ -92,7 +100,7 @@ Scene0.prototype.step = function() {
 	
 	//敵をランダム生成
 	if (Math.floor(Math.random() * 30) == 0) {
-		this.enemies.push(new Enemy(Math.floor(Math.random() * 384 - 192), Math.floor(Math.random() * 384 - 192), 100, 30, 2, new Color(255, 255, 0, 255)));
+		this.enemies.push(new Enemy(Math.floor(Math.random() * 384 - 192), Math.floor(Math.random() * 384 - 192), Math.floor(Math.random() * 150 + 50), 30, 2, new Color(255, 255, 0, 255)));
 	}
 	
 	//敵の状態
