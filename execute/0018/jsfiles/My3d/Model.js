@@ -71,12 +71,13 @@ Model.prototype.Screen = function(canvas) {
 	this.screenPolygons = this.MatrixApplied(this.projectionPolygons, mat, false);
 }
 
-var firstd = 0;
-
 //モデル描画
-Model.prototype.draw = function(canvas) {
+Model.prototype.draw = function(canvas, strokeColors, fillColors) {
 	canvas.save();
 	for (var i in this.screenPolygons) {
+		if (strokeColors != null && strokeColors.length > 0) {
+			canvas.strokeStyle = strokeColors[i % strokeColors.length].toContextString();
+		}
 		var s = this.screenPolygons[i];
 		canvas.beginPath();
 		canvas.moveTo(s.p1.x, s.p1.y);
@@ -84,6 +85,9 @@ Model.prototype.draw = function(canvas) {
 		canvas.lineTo(s.p3.x, s.p3.y);
 		canvas.closePath();
 		if (this.cameraPolygons[i].isObverse()) {
+			if (fillColors != null && fillColors.length > 0) {
+				canvas.fillStyle = fillColors[i % fillColors.length].toContextString();
+			}
 			canvas.fill();
 		}
 		canvas.stroke();

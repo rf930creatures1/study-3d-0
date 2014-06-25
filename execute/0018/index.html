@@ -7,116 +7,14 @@
 <meta name="description" content="rf930creatures1 study3d 0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>rf930creatures1-study3d-0</title>
-<script src="Vector2.js"></script>
-<script src="Vector3.js"></script>
-<script src="Matrix4x4.js"></script>
-<script src="Color.js"></script>
-<script src="CircleCalculator.js"></script>
-<script src="DebugCommands.js"></script>
-<script src="Guide3d.js"></script>
-<script src="Model.js"></script>
-<script src="Polygon.js"></script>
-<script src="Obj3dFile.js"></script>
+<script src="jsfiles/jsfilelist.js"></script>
 <script type="text/javascript">
 <!--
-//キャンバスの大きさ設定とか準備
-var scene;
-var obj3dFile;
-
-function start() {
-	var in_canvas = document.getElementById("mainCanvas");
-	in_canvas.width = 384;
-	in_canvas.height = 384;
-	this.canvas = in_canvas.getContext("2d");
-	cnvs = this.canvas;
-	
-	scene = new Scene();
-	scene.init();
-	scene.disp(this.canvas);
-}
-
-function Scene() {
-}
-
-//描画に必要なデータをセット
-Scene.prototype.init = function() {
-	//位置データ (ワールド座標)
-	this.position = new Vector3(0, 0, 0);
-	
-	//大きさ
-	this.radius = 100;
-	
-	//モデルデータ (ローカル座標)
-/*
-	//頂点
-	var mp = [new Vector3(0, 10, 0), new Vector3(10, -10, 0), new Vector3(-10, -10, 0)];
-	//モデル (nullを入れて面データ(MoveToとlineToの使い分けフラグ)にしている)
-	this.model = new Model([new Polygon(
-					//時計回りに描くと表になる。
-					mp[0], mp[1], mp[2] 
-					
-				)]);
-*/
-	var mPolygons = [];
-	for (var i in obj3dFile.groups[0].surfaces) {
-		var polygons = Polygon.surfaceToTriangles(obj3dFile.groups[0].surfaces[i]);
-		for (var j in polygons) {
-			mPolygons.push(polygons[j])
-		}
-	}
-	this.model = new Model(mPolygons);
-	
-	//ガイド線
-	this.guide3d = new Guide3d(20);
-	
-	this.yrot = 0;
-}
-
-//描画の実行
-Scene.prototype.disp = function(canvas) {
-	canvas.save();
-	canvas.clearRect(0, 0, canvas.canvas.width, canvas.canvas.height);
-	canvas.strokeStyle = (new Color(255, 255, 0, 0)).toContextString();
-	canvas.fillStyle = (new Color(128, 0, 192, 0)).toContextString();
-	
-	
-	var wMat = Matrix4x4_Identity();
-	wMat.translate(this.position.x, this.position.y, this.position.z);
-	this.model.World(wMat);
-	
-	var at = new Vector3(0, 7, 4);			//注視点(カメラの向き)
-	var eye = at.dup();		//視点	(カメラの場所)
-	var eyeMat = Matrix4x4_Identity();
-	eyeMat.rotateY(CircleCalculator.toRadian(70));
-	eyeMat.rotateX(CircleCalculator.toRadian(15));
-	eyeMat.translate(0, 0, -30);
-	eye = eyeMat.transform(eye);
-	
-	var near = 30;
-	var far = 50;
-	var nearPlaneWidth = 40;
-	
-	this.model.Camera(at, eye);
-	this.model.Perspective(-nearPlaneWidth/2, nearPlaneWidth/2, nearPlaneWidth/2, -nearPlaneWidth/2, near, far);
-	this.model.Screen(canvas);
-	this.model.draw(canvas);
-	
-	//3dガイドライン
-	this.guide3d.draw(canvas, at, eye, -nearPlaneWidth/2, nearPlaneWidth/2, nearPlaneWidth/2, -nearPlaneWidth/2, near, far);
-	
-	canvas.restore();
-}
-
-//中心を引数で取って、十字を描くためのVector3配列を返す
-Scene.prototype.crossVertices = function(canvas, center) {
-	var width = canvas.canvas.width;
-	var height = canvas.canvas.height;
-	return [[new Vector3(center.x, 0, 0), new Vector3(center.x, height, 0)], [new Vector3(0, center.y, 0), new Vector3(width, center.y, 0)]];
-}
-
 //==================================================================================
 //ファイル読み込み系
 //http://programming-10000.hatenadiary.jp/entry/20130627/1372355192
+
+var obj3dFile;
 
 function dochange(event) {
 	var file = event.target.files[0];
@@ -150,12 +48,10 @@ function onFileLoadError(event) {
 }
 
 //==================================================================================
-
-
 -->
 </script>
 </head>
-<body>
+<body onblur="gActived=false;" onfocus="gActived=true;">
 <input type="file" onchange="dochange(event);">
 <hr>
 <canvas id="mainCanvas" style="background-color:black;">
