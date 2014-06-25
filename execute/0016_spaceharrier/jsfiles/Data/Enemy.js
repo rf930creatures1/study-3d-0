@@ -29,7 +29,7 @@ function Enemy(x, y, z, radius, hp, color) {
 	this.zmoved = 0;
 	
 	//何秒間隔で弾を撃つか
-	this.shotInterval = 0.2;
+	this.shotInterval = 0.12;
 	this.shotTime = 0;
 	
 	//ショットの角度
@@ -50,6 +50,7 @@ function Enemy(x, y, z, radius, hp, color) {
 	this.normalColor = color;
 	this.damageColor = new Color(255, 255, 255, 255);
 	this.color = this.normalColor;
+	this.shotColor = new Color(255, 128, 128, 0);
 }
 
 //ワールド座標をセットする
@@ -83,21 +84,36 @@ Enemy.prototype.move = function() {
 	if (this.position.z < -30) this.visible = false;
 }
 
+Enemy.prototype.setHorming = function(target) {
+	var start = this.position;
+	var x = target.x - start.x;
+	var y = target.y - start.y;
+	var z = target.z - start.z;
+	var rad = Math.atan2(y, x);
+	this.horming = CircleCalculator.toDegree(rad);
+	rad = Math.atan2(y, z);
+	this.zhorming = CircleCalculator.toDegree(rad);
+	this.shotColor = new Color(255, 255, 0, 0);
+	this.shotInterval = 0.24;
+}
+
 Enemy.prototype.shot = function() {
 	this.shotTime += FPS;
 	this.shotDegree += this.shotRotateSpeed;
 	this.shotDegree %= 360;
 	if (this.shotTime >= this.shotInterval) {
+		var shotDeg = this.horming != null ? this.horming : this.shotDegree;
+		var zshotVec = this.zhorming != null ? Math.cos(CircleCalculator.toRadian(this.zhorming)) : -1;
 		this.shotTime = 0;
 		return new Ammo(this.position.x, 
 						this.position.y, 
 						this.position.z, 
 						10, 
 						40, 
-						//new Vector2(Math.cos(CircleCalculator.toRadian(this.shotDegree)), Math.sin(CircleCalculator.toRadian(this.shotDegree))), 
-						new Vector3(Math.cos(CircleCalculator.toRadian(this.shotDegree)), Math.sin(CircleCalculator.toRadian(this.shotDegree)), -1), 
+						//new Vector2(Math.cos(CircleCalculator.toRadian(shotDeg)), Math.sin(CircleCalculator.toRadian(shotDeg))), 
+						new Vector3(Math.cos(CircleCalculator.toRadian(shotDeg)), Math.sin(CircleCalculator.toRadian(shotDeg)), zshotVec), 
 						this.shootTags, 
-						new Color(255, 255, 0, 0));
+						this.shotColor);
 	}
 	return null;
 }

@@ -47,8 +47,8 @@ Player.prototype.WorldVertexModel = function() {
 Player.prototype.draw = function(canvas) {
 	if (this.visible) {
 		canvas.save();
-		canvas.strokeStyle = "rgb(255, 0, 0)";
-		canvas.fillStyle = "rgb(128, 0, 0)";
+		canvas.strokeStyle = "rgb(0, 255, 0)";
+		canvas.fillStyle = "rgb(0, 128, 0)";
 		this.model.draw(canvas);
 		canvas.restore();
 	}

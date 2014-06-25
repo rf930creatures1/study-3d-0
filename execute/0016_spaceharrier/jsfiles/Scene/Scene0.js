@@ -56,8 +56,8 @@ Scene0.prototype.disp = function(canvas) {
 	
 	//カメラ用スクロール情報を作る
 	var charaMoveRange = 384;
-	var nearPlaneWidth = 300;
-	var cameraMoveRange = charaMoveRange - nearPlaneWidth;
+	var nearPlaneWidth = 384 * 0.8;
+	var cameraMoveRange = charaMoveRange - nearPlaneWidth + 20;
 	var eyeX = this.player.position.x * cameraMoveRange / charaMoveRange;
 	var eyeY = this.player.position.y * cameraMoveRange / charaMoveRange;
 	
@@ -100,7 +100,12 @@ Scene0.prototype.step = function() {
 	
 	//敵をランダム生成
 	if (Math.floor(Math.random() * 30) == 0) {
-		this.enemies.push(new Enemy(Math.floor(Math.random() * 384 - 192), Math.floor(Math.random() * 384 - 192), Math.floor(Math.random() * 150 + 50), 30, 2, new Color(255, 255, 0, 255)));
+		var e = new Enemy(Math.floor(Math.random() * 384 - 192), Math.floor(Math.random() * 384 - 192), Math.floor(Math.random() * 150 + 50), 30, 2, new Color(255, 255, 0, 255));
+		this.enemies.push(e);
+		//一定の確率でホーミング弾
+		if (Math.floor(Math.random() * 2) == 0) {
+			e.setHorming(this.player.position);
+		}
 	}
 	
 	//敵の状態
