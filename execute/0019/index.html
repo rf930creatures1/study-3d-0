@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="keywords" content="rf930creatures1 study3d 0">
+<meta name="description" content="rf930creatures1 study3d 0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>rf930creatures1-study3d-0</title>
+<script src="jsfiles/jsfilelist.js"></script>
+<script type="text/javascript">
+<!--
+//==================================================================================
+//ファイル読み込み系
+//http://programming-10000.hatenadiary.jp/entry/20130627/1372355192
+
+var obj3dFile;
+
+function dochange(event) {
+	var file = event.target.files[0];
+	if (file) {
+		readfile(file);
+	}
+}
+
+function readfile(file) {
+	var reader = new FileReader();
+	reader.addEventListener('load', onFileLoaded);
+	reader.addEventListener('error', onFileLoadError);
+
+	reader.readAsText(file,"utf-8");
+}
+
+function onFileLoaded(event) {
+	var text = event.target.result;
+	//document.querySelector("#msg").innerHTML = str;
+	obj3dFile = new Obj3dFile.read(text);
+	start();
+	console.log("text has read.");
+}
+
+function onFileLoadError(event) {
+	if (event.target.error.code == event.target.error.NOT_READABLE_ERR) {
+		alert("ファイルの読み込みに失敗しました！");
+	} else {
+		alert("エラーが発生しました。" + event.target.error.code);
+	}
+}
+
+//==================================================================================
+-->
+</script>
+</head>
+<body onblur="gActived=false;" onfocus="gActived=true;" onLoad="start()">
+<!--
+<input type="file" onchange="dochange(event);">
+<hr>
+-->
+<canvas id="mainCanvas" style="background-color:black;">
+図形を表示するには、canvasタグをサポートしたブラウザが必要です。
+</canvas>
+</body>
+</html>
