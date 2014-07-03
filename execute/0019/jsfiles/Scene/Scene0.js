@@ -25,7 +25,18 @@ Scene0.prototype.init = function() {
 					mp[0], mp[1], mp[2] 
 					
 				)]);
-
+	
+	//任意軸のガイド
+	this.rotGenten = new Vector3(0, 0, 0);
+	this.axisVec = (new Vector3(1, 1, 1)).normalize();
+	var axisGuideLength = 20;
+	this.axisVecEnd = new Vector3(	axisGuideLength * this.axisVec.x + this.rotGenten.x, 
+									axisGuideLength * this.axisVec.y + this.rotGenten.y, 
+									axisGuideLength * this.axisVec.z + this.rotGenten.z);
+	//this.guideAar = new Model([new Polygon(this.rotGenten, this.axisVecEnd, this.rotGenten)]);
+	this.guideAar = new Model([new Polygon(new Vector3(-this.axisVecEnd.x/2, -this.axisVecEnd.y/2, -this.axisVecEnd.z/2), this.rotGenten, this.axisVecEnd)]);
+	
+	
 /*
 	var mPolygons = [];
 	for (var i in obj3dFile.groups[0].surfaces) {
@@ -68,8 +79,7 @@ Scene0.prototype.disp = function(canvas) {
 	wMat.translate(this.position.x, this.position.y, this.position.z);
 	
 	//任意軸回転
-	var rotGenten = new Vector3(10, 0, 0);
-	var saarMat = Matrix4x4_SuperArbitraryAxisRotate(rotGenten , new Vector3(1, 1, 1), CircleCalculator.toRadian(this.autorot));
+	var saarMat = Matrix4x4_SuperArbitraryAxisRotate(this.rotGenten , this.axisVec, CircleCalculator.toRadian(this.autorot));
 	wMat.multiply(saarMat); //以上の情報をワールドマトリックスに格納する
 	//var q = new Quaternion(0, 0, 0, 0);
 	//var q2 = q.transfrom2(new Vector3(0, 1, 0), CircleCalculator.toRadian(this.autorot));
@@ -117,6 +127,16 @@ Scene0.prototype.disp = function(canvas) {
 	if (this.seisyaei) this.guide3d.projectionType = ProjectionType.SEISHAEI;
 	else this.guide3d.projectionType = ProjectionType.TOUSHI;
 	this.guide3d.draw(canvas, at, eye, up, -nearPlaneWidth/2, nearPlaneWidth/2, nearPlaneWidth/2, -nearPlaneWidth/2, near, far);
+	
+	//任意軸ガイドライン
+	this.guideAar.World(Matrix4x4_Identity());
+	this.guideAar.Camera(at, eye, up);
+	if (this.seisyaei)
+		this.guideAar.OrthogonalProjection(-nearPlaneWidth/2, nearPlaneWidth/2, nearPlaneWidth/2, -nearPlaneWidth/2, near, far);
+	else
+		this.guideAar.Perspective(-nearPlaneWidth/2, nearPlaneWidth/2, nearPlaneWidth/2, -nearPlaneWidth/2, near, far);
+	this.guideAar.Screen(canvas);
+	this.guideAar.draw(canvas, [new Color(255, 255, 255, 0)], null);
 	
 	canvas.restore();
 }
