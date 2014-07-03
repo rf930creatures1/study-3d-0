@@ -69,8 +69,11 @@ Scene0.prototype.disp = function(canvas) {
 	
 	//任意軸回転
 	var rotGenten = new Vector3(10, 0, 0);
-	var saarMat = Matrix4x4_SuperArbitraryAxisRotate(rotGenten , new Vector3(0, 1, 0), CircleCalculator.toRadian(this.autorot));
+	var saarMat = Matrix4x4_SuperArbitraryAxisRotate(rotGenten , new Vector3(1, 1, 1), CircleCalculator.toRadian(this.autorot));
 	wMat.multiply(saarMat); //以上の情報をワールドマトリックスに格納する
+	//var q = new Quaternion(0, 0, 0, 0);
+	//var q2 = q.transfrom2(new Vector3(0, 1, 0), CircleCalculator.toRadian(this.autorot));
+	//wMat.multiply(q2.rotationMatrix());
 	//任意軸回転ここまで
 	
 	this.model.World(wMat);

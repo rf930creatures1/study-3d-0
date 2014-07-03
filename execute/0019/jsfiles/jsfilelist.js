@@ -21,4 +21,5 @@ document.write('<script src="jsfiles/My3d/Polygon.js"></script>');
 document.write('<script src="jsfiles/My3d/Model.js"></script>');
 document.write('<script src="jsfiles/My3d/Guide3d.js"></script>');
 document.write('<script src="jsfiles/My3d/Obj3dFile.js"></script>');
+document.write('<script src="jsfiles/My3d/Quaternion.js"></script>');
 document.write('<script src="jsfiles/Scene/Scene0.js"></script>');
