@@ -140,7 +140,8 @@ Scene0.prototype.disp = function(canvas) {
 }
 
 Scene0.prototype.step = function() {
-	this.autorot += 50 * FPS;
+	//this.autorot += 50 * FPS;
+	/*
 	if (this.gManager.keyInput.mouseButton) {
 		//それまで押されていなかった場合、
 		if (!this.mouseButton) {
@@ -179,6 +180,7 @@ Scene0.prototype.step = function() {
 		}
 	}
 	this.mouseButton = this.gManager.keyInput.mouseButton;
+	*/
 }
 
 Scene0.prototype.destroy = function() {

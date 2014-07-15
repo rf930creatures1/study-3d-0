@@ -70,3 +70,40 @@ Quaternion.rotationArc = function(vec3I, vec3II) {
 	var s = Math.sqrt((1 + d) * 2);
 	return new Quaternion(c.x / s, c.y / s, c.z / s, s / 2);
 }
+
+//球面線形補間
+Quaternion.prototype.slerp = function(q0, q1, rad) {
+	var q0q1 = q0.w * q1.w + q0.x * q1.x + q0.y * q1.y + q0.z * q1.z;
+	var ss = 1 - (q0q1 * q0q1);
+	if (ss == 0){
+		return new Quaternion(q0.x, q0.y, q0.z, q0.w);
+	}
+	else {
+		var ph = Math.acos(q0q1);
+		if(q0q1 < 0 && ph > Math.PI / 2){
+			q0q1 = - q0.w * q1.w - q0.x * q1.x - q0.y * q1.y - q0.z * q1.z;
+			ph = Math.acos(q0q1);
+			var _1_dev_sinph = 1 / Math.sin(ph);
+			var s0 = Math.sin(ph * (1 - rad)) * _1_dev_sinph;
+			var s1 = Math.sin(ph * rad) * _1_dev_sinph;
+			
+			return new Quaternion(
+				q0.x * s0 - q1.x * s1,
+				q0.y * s0 - q1.y * s1,
+				q0.z * s0 - q1.z * s1,
+				q0.w * s0 - q1.w * s1
+			);
+		}
+		else {
+			var _1_dev_sinph = 1 / Math.sin(ph);
+			var s0 = Math.sin(ph * (1 - rad)) * _1_dev_sinph;
+			var s1 = Math.sin(ph * rad) * _1_dev_sinph;
+			return new Quaternion(
+				q0.x * s0 + q1.x * s1,
+				q0.y * s0 + q1.y * s1,
+				q0.z * s0 + q1.z * s1,
+				q0.w * s0 + q1.w * s1
+			);
+		}
+	}
+}
