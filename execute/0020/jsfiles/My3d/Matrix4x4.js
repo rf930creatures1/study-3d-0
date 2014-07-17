@@ -165,6 +165,26 @@ Matrix4x4.prototype.reverseMatrix = function() {
 							 inv_a[3][0], inv_a[3][1], inv_a[3][2], inv_a[3][3]);
 }
 
+//行列の各値をスカラー倍する
+Matrix4x4.prototype.scalerMultiply = function(scaler) {
+	return Matrix4x4_Set(	this.m11 * scaler, 
+							this.m12 * scaler, 
+							this.m13 * scaler, 
+							this.m14 * scaler, 
+							this.m21 * scaler, 
+							this.m22 * scaler, 
+							this.m23 * scaler, 
+							this.m24 * scaler, 
+							this.m31 * scaler, 
+							this.m32 * scaler, 
+							this.m33 * scaler, 
+							this.m34 * scaler, 
+							this.m41 * scaler, 
+							this.m42 * scaler, 
+							this.m43 * scaler, 
+							this.m44 * scaler);
+}
+
 //===staticメソッド的なもの===
 
 function Matrix4x4_Identity() {

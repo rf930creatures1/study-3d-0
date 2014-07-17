@@ -18,13 +18,30 @@ Scene0.prototype.init = function() {
 	//モデルデータ (ローカル座標)
 
 	//頂点
-	var mp = [new Vector3(0, 10, 0), new Vector3(10, -10, 0), new Vector3(-10, -10, 0)];
+	var mp = [new Vertex3(-10, 0, 0), new Vertex3(10, 0, 0), new Vertex3(-10, -20, 0), new Vertex3(10, -20, 0), new Vertex3(-10, 20, 0), new Vertex3(10, 20, 0)];
+	//関節
+	var jmat1 = Matrix4x4_Identity();
+	var jmat2 = Matrix4x4_Identity();
+	jmat2.translate(20, 0, 0);
+	//jmat2.rotateZ(-45);
+	this.bone = new BoneEffector(new BoneJoint(jmat1));
+	this.bone.joint.createChild(jmat2);
+	mp[0].addJoint(this.bone.joint); //2つのポリゴンの左の共通頂点
+	mp[1].addJoint(this.bone.joint); //2つのポリゴンの右の共通頂点
+	//mp[0].addJoint(this.bone.joint.children[0]); //2つのポリゴンの左の共通頂点
+	//mp[1].addJoint(this.bone.joint.children[0]); //2つのポリゴンの右の共通頂点
+	mp[2].addJoint(this.bone.joint);
+	mp[3].addJoint(this.bone.joint);
+	mp[4].addJoint(this.bone.joint.children[0]);
+	mp[5].addJoint(this.bone.joint.children[0]);
 	//モデル (nullを入れて面データ(MoveToとlineToの使い分けフラグ)にしている)
-	this.model = new Model([new Polygon(
+	this.model = new Model([
 					//時計回りに描くと表になる。
-					mp[0], mp[1], mp[2] 
-					
-				)]);
+					new Polygon(mp[0], mp[1], mp[2]), 
+					new Polygon(mp[2], mp[1], mp[3]), 
+					new Polygon(mp[4], mp[5], mp[0]), 
+					new Polygon(mp[0], mp[5], mp[1])
+				]);
 	
 	//任意軸のガイド
 	this.rotGenten = new Vector3(0, 0, 0);
@@ -74,17 +91,20 @@ Scene0.prototype.disp = function(canvas) {
 	canvas.strokeStyle = (new Color(255, 255, 0, 0)).toContextString();
 	canvas.fillStyle = (new Color(128, 0, 192, 0)).toContextString();
 	
+	//Jointのワールドマトリックス計算
+	this.bone.joint.calcWorldMatrix(this.bone.joint.matrix);
+	this.model.BoneAppend();
 	
 	var wMat = Matrix4x4_Identity();
 	wMat.translate(this.position.x, this.position.y, this.position.z);
 	
 	//任意軸回転
-	var saarMat = Matrix4x4_SuperArbitraryAxisRotate(this.rotGenten , this.axisVec, CircleCalculator.toRadian(this.autorot));
-	wMat.multiply(saarMat); //以上の情報をワールドマトリックスに格納する
+	//var saarMat = Matrix4x4_SuperArbitraryAxisRotate(this.rotGenten , this.axisVec, CircleCalculator.toRadian(this.autorot));
+	//wMat.multiply(saarMat); //以上の情報をワールドマトリックスに格納する
 	//任意軸回転ここまで
 	
-	//this.model.World(wMat);
-	this.model.WorldQ(this.axisVec, CircleCalculator.toRadian(this.autorot));
+	this.model.World(wMat);
+	//this.model.WorldQ(this.axisVec, CircleCalculator.toRadian(this.autorot));
 	
 	var at = new Vector3(0, 0, 0);			//注視点(カメラの向き)
 	var eye = new Vector3(0, 0, 0);			//視点	(カメラの場所)
@@ -134,14 +154,14 @@ Scene0.prototype.disp = function(canvas) {
 	else
 		this.guideAar.Perspective(-nearPlaneWidth/2, nearPlaneWidth/2, nearPlaneWidth/2, -nearPlaneWidth/2, near, far);
 	this.guideAar.Screen(canvas);
-	this.guideAar.draw(canvas, [new Color(255, 255, 255, 0)], null);
+	//this.guideAar.draw(canvas, [new Color(255, 255, 255, 0)], null);
 	
 	canvas.restore();
 }
 
 Scene0.prototype.step = function() {
 	//this.autorot += 50 * FPS;
-	/*
+	
 	if (this.gManager.keyInput.mouseButton) {
 		//それまで押されていなかった場合、
 		if (!this.mouseButton) {
@@ -180,7 +200,7 @@ Scene0.prototype.step = function() {
 		}
 	}
 	this.mouseButton = this.gManager.keyInput.mouseButton;
-	*/
+	
 }
 
 Scene0.prototype.destroy = function() {

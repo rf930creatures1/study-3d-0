@@ -23,4 +23,7 @@ document.write('<script src="jsfiles/My3d/Guide3d.js"></script>');
 document.write('<script src="jsfiles/My3d/Obj3dFile.js"></script>');
 document.write('<script src="jsfiles/My3d/BvhLoader.js"></script>');
 document.write('<script src="jsfiles/My3d/Quaternion.js"></script>');
+document.write('<script src="jsfiles/My3d/BoneJoint.js"></script>');
+document.write('<script src="jsfiles/My3d/BoneEffector.js"></script>');
+document.write('<script src="jsfiles/My3d/Vertex3.js"></script>');
 document.write('<script src="jsfiles/Scene/Scene0.js"></script>');

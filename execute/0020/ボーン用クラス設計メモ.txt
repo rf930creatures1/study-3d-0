@@ -1,0 +1,22 @@
+function polygon() { //ベクトルだけではなく、ボーン…というかジョイントにどれだけ影響するかも表したい。ジョイントは複数ある。
+	vertex p1
+	vertex p2
+	vertex p3
+}
+
+function vertex() { //だから、ベクトルと、ジョイントを複数覚えられるようにする。
+	vector3 pos; //位置情報
+	jointref[] j; //ジョイントとその影響度は複数ある
+}
+
+function jointref() { //ジョイントは主に行列であり、どの程度影響するかも保持する。
+	joint j; //ジョイントは行列とか親子関係とか持つ。
+	float weight; //影響度
+}
+
+function joint() { //Tentacleクラスを要参照
+	matrix4x4 lm; //ローカルマトリックス
+	matrix4x4 wm; //ワールドマトリックス
+	joint[] children; //親子関係
+}
+

@@ -4,6 +4,7 @@
 function Model(polygons) {
 	//ポリゴンをそれぞれ配列で保管する。
 	this.localPolygons = polygons;
+	this.bonePolygons = null;
 	this.worldPolygons = null;
 	this.cameraPolygons = null;
 	this.projectionPolygons = null;
@@ -33,9 +34,21 @@ Model.prototype.MatrixApplied = function(polygons, matrix, divideW) {
 	return retModel;
 }
 
+Model.prototype.BoneAppend = function() {
+	var append = [];
+	for (var i = 0; i < this.localPolygons.length; i++) {
+		var p1 = this.localPolygons[i].p1.transform();
+		var p2 = this.localPolygons[i].p2.transform();
+		var p3 = this.localPolygons[i].p3.transform();
+		append[i] = new Polygon(p1, p2, p3);
+	}
+	this.bonePolygons = append;
+}
+
 //ローカル座標からワールド座標へ変換
 Model.prototype.World = function(matrix) {
-	this.worldPolygons = this.MatrixApplied(this.localPolygons, matrix, false);
+	var polygons = this.bonePolygons == null ? this.localPolygons : this.bonePolygons;
+	this.worldPolygons = this.MatrixApplied(polygons, matrix, false);
 }
 
 //ローカル座標からワールド座標へ変換 クォータニオンを使う

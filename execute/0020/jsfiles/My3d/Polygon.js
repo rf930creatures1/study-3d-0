@@ -12,6 +12,11 @@ function Polygon_ExtraConstractor1(x1, y1, z1, x2, y2, z2, x3, y3, z3) {
 }
 Polygon_ExtraConstractor1.prototype = new Polygon();
 
+function Polygon_ExtraConstractor2(x1, y1, z1, x2, y2, z2, x3, y3, z3) {
+	Polygon.call(this, new Vertex3(x1, y1, z1), new Vertex3(x2, y2, z2), new Vertex3(x3, y3, z3));
+}
+Polygon_ExtraConstractor2.prototype = new Polygon();
+
 //3点からなる面が表か
 Polygon.prototype.isObverse = function() {
 	var p1 = this.p1;
