@@ -1,5 +1,5 @@
 function BvhLoader() {
-	this.hierarchy = null;
+	this.hierarchy = null; //ROOTのBvhJoint情報が入っている。ROOTは複数ある可能性があるので配列。
 	this.frames = 0; //hierarchy.channels.lengthと等価
 	this.frameTime = 0; //1フレームは何秒か
 }
@@ -44,6 +44,7 @@ BvhLoader.read = function(text) {
 	
 	var jGeneration = 0; //JOINTの世代カウンタ
 	var jGenerations = []; //JOINTの世代一時保存
+	var jRoots = []; //JOINTの全ROOT世代一時保存
 	
 	
 	for (var i = 0; i < textLen; i++) {
@@ -82,7 +83,10 @@ BvhLoader.read = function(text) {
 			if (mode == "HIERARCHY") {
 				if (value == "ROOT" || value == "JOINT" || value == "End") {
 					joint = new BvhJoint();
-					if (jGenerations[jGeneration - 1] != null) {
+					if (jGeneration - 1 < 0) {
+						jRoots.push(joint);
+					}
+					else if (jGenerations[jGeneration - 1] != null) {
 						jGenerations[jGeneration - 1].child.push(joint);
 					}
 					jGenerations[jGeneration] = joint;
@@ -172,8 +176,8 @@ BvhLoader.read = function(text) {
 		}
 	}
 	
-	//第一世代がROOT。
-	ret.hierarchy = jGenerations[0];
+	//ROOTを覚える。
+	ret.hierarchy = jRoots;
 	
 	return ret;
 }

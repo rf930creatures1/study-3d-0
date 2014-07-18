@@ -24,16 +24,17 @@ Scene0.prototype.init = function() {
 	var jmat2 = Matrix4x4_Identity();
 	jmat2.translate(20, 0, 0);
 	//jmat2.rotateZ(-45);
-	this.bone = new BoneEffector(new BoneJoint(jmat1));
-	this.bone.joint.createChild(jmat2);
-	mp[0].addJoint(this.bone.joint); //2つのポリゴンの左の共通頂点
-	mp[1].addJoint(this.bone.joint); //2つのポリゴンの右の共通頂点
-	//mp[0].addJoint(this.bone.joint.children[0]); //2つのポリゴンの左の共通頂点
-	//mp[1].addJoint(this.bone.joint.children[0]); //2つのポリゴンの右の共通頂点
-	mp[2].addJoint(this.bone.joint);
-	mp[3].addJoint(this.bone.joint);
-	mp[4].addJoint(this.bone.joint.children[0]);
-	mp[5].addJoint(this.bone.joint.children[0]);
+	//this.bone = new BoneJoint(jmat1);
+	//this.bone.createChild(jmat2);
+	this.bone = BoneJoint.createJointsFromBvh(bvhLoader)[0];
+	//mp[0].addJoint(this.bone); //2つのポリゴンの左の共通頂点
+	//mp[1].addJoint(this.bone); //2つのポリゴンの右の共通頂点
+	mp[0].addJoint(this.bone.children[0]); //2つのポリゴンの左の共通頂点
+	mp[1].addJoint(this.bone.children[0]); //2つのポリゴンの右の共通頂点
+	mp[2].addJoint(this.bone);
+	mp[3].addJoint(this.bone);
+	mp[4].addJoint(this.bone.children[0]);
+	mp[5].addJoint(this.bone.children[0]);
 	//モデル (nullを入れて面データ(MoveToとlineToの使い分けフラグ)にしている)
 	this.model = new Model([
 					//時計回りに描くと表になる。
@@ -83,6 +84,8 @@ Scene0.prototype.init = function() {
 	this.seisyaei = false;
 	//space押しっぱなしでぱっぱと変更しないように、投影変換できるかフラグ
 	this.seisyaeiChangePermissition = true;
+	
+	this.animCounter = 0;
 }
 
 Scene0.prototype.disp = function(canvas) {
@@ -92,7 +95,7 @@ Scene0.prototype.disp = function(canvas) {
 	canvas.fillStyle = (new Color(128, 0, 192, 0)).toContextString();
 	
 	//Jointのワールドマトリックス計算
-	this.bone.joint.calcWorldMatrix(this.bone.joint.matrix);
+	this.bone.calcWorldMatrix(this.bone.matrix);
 	this.model.BoneAppend();
 	
 	var wMat = Matrix4x4_Identity();
@@ -121,7 +124,7 @@ Scene0.prototype.disp = function(canvas) {
 	
 	var near = 30;
 	var far = 50;
-	var nearPlaneWidth = 40;
+	var nearPlaneWidth = 240;
 	
 	this.model.Camera(at, eye, up);
 	if (this.seisyaei)
@@ -200,6 +203,9 @@ Scene0.prototype.step = function() {
 		}
 	}
 	this.mouseButton = this.gManager.keyInput.mouseButton;
+	
+	this.animCounter++;
+	this.bone.animation(this.animCounter * FPS / 2);
 	
 }
 
