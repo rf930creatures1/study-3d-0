@@ -11,8 +11,19 @@ function BoneJoint(matrix, tags) {
 	this.worldMatrix = null;
 	this.animationDatas = null; //BvhChannelData[]
 	this.frameTime = 1 / 30; //フレームタイム ここにあるべきなのかは定かでない。
+	this.transdata = null; //animationメソッド内部で生成
 	if (tags == null) this.tags = [];
 	else this.tags = tags;
+}
+
+function TransData() {
+	this.changed = false;
+	this.posX = 0;
+	this.posY = 0;
+	this.posZ = 0;
+	this.rotX = 0;
+	this.rotY = 0;
+	this.rotZ = 0;
 }
 
 //子を追加
@@ -89,42 +100,98 @@ BoneJoint.prototype.animation = function(t) {
 	//回転はラジアンで表しているってことにしていいのかな。
 	//移動は絶対位置で表しているってことにしていいのかな。
 	
-	var anime = function(boneJoint, t) {
+	function loadMotion(boneJoint, t) {
 		for (var j in boneJoint.children) {
-			anime(boneJoint.children[j], t);
+			loadMotion(boneJoint.children[j], t);
 		}
 		
 		var f = Math.floor(t / boneJoint.frameTime);
 		var m = boneJoint.matrix;
+		var td = new TransData();
+		boneJoint.transdata = td;
 		for (var i in boneJoint.animationDatas) {
 			var animdata = boneJoint.animationDatas[i];
 			//時間がモーションデータを超えてたら止める
-			if (animdata.motion.length - 1 > f) {
-				if (i == 0) { //最初だけ単位行列化
-					m.setIdentity();
-				}
+			if (f < animdata.motion.length) {
+				td.changed = true;
 				var value = animdata.motion[f];
 				if (animdata.name == "Xposition") {
-					m.translate(value, 0, 0);
+					td.posX = value;
 				}
 				else if (animdata.name == "Yposition") {
-					m.translate(0, value, 0);
+					td.posY = value;
 				}
 				else if (animdata.name == "Zposition") {
-					m.translate(0, 0, value);
+					td.posZ = -value;
 				}
 				else if (animdata.name == "Xrotation") {
-					m.rotateX(value);
+					td.rotX = CircleCalculator.toRadian(value);
 				}
 				else if (animdata.name == "Yrotation") {
-					m.rotateY(value);
+					td.rotY = CircleCalculator.toRadian(value);
 				}
 				else if (animdata.name == "Zrotation") {
-					m.rotateZ(value);
+					td.rotZ = CircleCalculator.toRadian(value);
 				}
 			}
 		}
+		/*
+		if (td.changed) {
+			m.setIdentity();
+			//回転する
+			m.rotateZ(td.rotZ);
+			m.rotateX(td.rotX);
+			m.rotateY(td.rotY);
+			//移動してから↑
+			m.translate(td.posX, td.posY, td.posZ);
+		}
+		*/
 	}
 	
-	anime(this, t);
+	function identity(boneJoint) {
+		var m = boneJoint.matrix;
+		var td = boneJoint.transdata;
+		if (td.changed) {
+			m.setIdentity();
+		}
+		
+		for (var j in boneJoint.children) {
+			identity(boneJoint.children[j]);
+		}
+	}
+	
+	function rotate(bjParent, boneJoint) {
+		//親の姿勢情報を使って回転する
+		if (bjParent != null) {
+			var m = boneJoint.matrix;
+			var td = bjParent.transdata;
+			if (td.changed) {
+				m.rotateZ(td.rotZ);
+				m.rotateX(td.rotX);
+				m.rotateY(td.rotY);
+			}
+		}
+		
+		for (var j in boneJoint.children) {
+			rotate(boneJoint, boneJoint.children[j]);
+		}
+	}
+	
+	function translate(boneJoint) {
+		//自分自身の位置に移動する
+		var m = boneJoint.matrix;
+		var td = boneJoint.transdata;
+		if (td.changed) {
+			m.translate(td.posX, td.posY, td.posZ);
+		}
+		
+		for (var j in boneJoint.children) {
+			translate(boneJoint.children[j]);
+		}
+	}
+	
+	loadMotion(this, t);
+	identity(this);
+	rotate(null, this);
+	translate(this);
 }

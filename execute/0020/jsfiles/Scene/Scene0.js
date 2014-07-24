@@ -27,14 +27,14 @@ Scene0.prototype.init = function() {
 	//this.bone = new BoneJoint(jmat1);
 	//this.bone.createChild(jmat2);
 	this.bone = BoneJoint.createJointsFromBvh(bvhLoader)[0];
-	//mp[0].addJoint(this.bone); //2つのポリゴンの左の共通頂点
-	//mp[1].addJoint(this.bone); //2つのポリゴンの右の共通頂点
-	mp[0].addJoint(this.bone.children[0]); //2つのポリゴンの左の共通頂点
-	mp[1].addJoint(this.bone.children[0]); //2つのポリゴンの右の共通頂点
+	mp[0].addJoint(this.bone); //2つのポリゴンの左の共通頂点
+	mp[1].addJoint(this.bone); //2つのポリゴンの右の共通頂点
+	//mp[0].addJoint(this.bone.children[2], 0.5); //2つのポリゴンの左の共通頂点
+	//mp[1].addJoint(this.bone.children[2], 0.5); //2つのポリゴンの右の共通頂点
 	mp[2].addJoint(this.bone);
 	mp[3].addJoint(this.bone);
-	mp[4].addJoint(this.bone.children[0]);
-	mp[5].addJoint(this.bone.children[0]);
+	mp[4].addJoint(this.bone.children[2]);
+	mp[5].addJoint(this.bone.children[2]);
 	//モデル (nullを入れて面データ(MoveToとlineToの使い分けフラグ)にしている)
 	this.model = new Model([
 					//時計回りに描くと表になる。
@@ -96,6 +96,7 @@ Scene0.prototype.disp = function(canvas) {
 	
 	//Jointのワールドマトリックス計算
 	this.bone.calcWorldMatrix(this.bone.matrix);
+	//dp(this.bone.matrix.m14);
 	this.model.BoneAppend();
 	
 	var wMat = Matrix4x4_Identity();
@@ -118,7 +119,7 @@ Scene0.prototype.disp = function(canvas) {
 	eyeMat.rotateX(CircleCalculator.toRadian(this.xrot));
 	eyeMat.rotateZ(CircleCalculator.toRadian(this.zrot));
 	//upMat.rotateZ(CircleCalculator.toRadian(this.zrot));
-	eyeMat.translate(0, 0, -50);
+	eyeMat.translate(0, 0, -80);
 	eye = eyeMat.transform(eye);
 	up = upMat.transform(up);
 	

@@ -11,6 +11,7 @@ document.write('<script src="jsfiles/Library/Color.js"></script>');
 document.write('<script src="jsfiles/Library/GameScene.js"></script>');
 document.write('<script src="jsfiles/Library/CircleCalculator.js"></script>');
 document.write('<script src="jsfiles/Library/KeyInput.js"></script>');
+document.write('<script src="jsfiles/Library/StopWatch.js"></script>');
 document.write('<script src="jsfiles/Main/OnOpenPage.js"></script>');
 document.write('<script src="jsfiles/Main/MainActivity.js"></script>');
 document.write('<script src="jsfiles/Main/GameManager.js"></script>');

@@ -40,12 +40,25 @@ function GameManager(in_canvas) {
 	this.changeScene(GameSceneName.SCENE0);
 	
 	window.onbeforeunload = this.destroy;
+	
+	//FPS計測用
+	this.fpsCounter = 0;
+	this.fpsTimer = new StopWatch();
+	this.fpsTimer.start();
 }
 GameManager.prototype.gameloop = function() {
 	if (gActived) {
 		this.init();
 		this.disp();
 		this.step();
+	}
+	
+	//FPS計測
+	this.fpsCounter++;
+	if (this.fpsTimer.now() >= 1) {
+		//dp(this.fpsCounter);
+		this.fpsCounter = 0;
+		this.fpsTimer.restart();
 	}
 }
 GameManager.prototype.init = function() {
