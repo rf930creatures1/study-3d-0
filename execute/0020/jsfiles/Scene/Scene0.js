@@ -145,6 +145,9 @@ Scene0.prototype.disp = function(canvas) {
 	
 	this.model.draw(canvas, null, fillColors);
 	
+	//ボーン描画
+	this.bone.drawGenealogy(canvas, this.bone, new Vector3(0, 0, 0), at, eye, up, this.seisyaei, -nearPlaneWidth/2, nearPlaneWidth/2, nearPlaneWidth/2, -nearPlaneWidth/2, near, far);
+	
 	//3dガイドライン
 	if (this.seisyaei) this.guide3d.projectionType = ProjectionType.SEISHAEI;
 	else this.guide3d.projectionType = ProjectionType.TOUSHI;

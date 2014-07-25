@@ -51,11 +51,33 @@ Quaternion.prototype.conjugate = function() {
 }
 
 //回転行列生成
+/* //なんかこれうまくできてなかった。。
 Quaternion.prototype.rotationMatrix = function() {
-	return new Matrix4x4_Set(
+	var m = Matrix4x4_Set(
 		1 - 2 * (Math.pow(this.y, 2) + Math.pow(this.z, 2)), 2 * (this.x * this.y - this.w * this.z), 2 * (this.w * this.y + this.x * this.z), 0,
 		2 * (this.x * this.y + this.w * this.z), 1 - 2 * (Math.pow(this.x, 2) + Math.pow(this.z, 2)), 2 * (this.y * this.z + this.w * this.x), 0,
 		2 * (this.x * this.z + this.w * this.y), 2 * (this.y * this.z + this.w * this.x), 1 - 2 * (Math.pow(this.x, 2) + Math.pow(this.y, 2)), 0,
+		0, 0, 0, 1);
+	//return m;
+	return Matrix4x4_Transpose(m);
+}
+*/
+Quaternion.prototype.rotationMatrix = function(){
+	var q = this;
+	var sx = q.x * q.x;
+	var sy = q.y * q.y;
+	var sz = q.z * q.z;
+	var cx = q.y * q.z;
+	var cy = q.x * q.z;
+	var cz = q.x * q.y;
+	var wx = q.w * q.x;
+	var wy = q.w * q.y;
+	var wz = q.w * q.z;
+
+	return Matrix4x4_Set(
+		1 - 2 * (sy + sz), 2 * (cz + wz), 2 * (cy - wy), 0,
+		2 * (cz - wz), 1 - 2 * (sx + sz), 2 * (cx + wx), 0,
+		2 * (cy + wy), 2 * (cx - wx), 1 - 2 * (sx + sy), 0,
 		0, 0, 0, 1);
 }
 
@@ -72,7 +94,7 @@ Quaternion.rotationArc = function(vec3I, vec3II) {
 }
 
 //球面線形補間
-Quaternion.prototype.slerp = function(q0, q1, rad) {
+Quaternion.slerp = function(q0, q1, rad) {
 	var q0q1 = q0.w * q1.w + q0.x * q1.x + q0.y * q1.y + q0.z * q1.z;
 	var ss = 1 - (q0q1 * q0q1);
 	if (ss == 0){
@@ -104,6 +126,51 @@ Quaternion.prototype.slerp = function(q0, q1, rad) {
 				q0.z * s0 + q1.z * s1,
 				q0.w * s0 + q1.w * s1
 			);
+		}
+	}
+}
+
+//オイラー角から(行列に変換してそれから)クォータニオンに変換
+Quaternion.Euler = function(x, y, z) {
+	var mat = Matrix4x4_Identity();
+	mat.rotateZ(z);
+	mat.rotateX(x);
+	mat.rotateY(y);
+	return Quaternion.matrixToQuaternion(mat);
+}
+
+//行列をクォータニオンに変換
+Quaternion.matrixToQuaternion = function(matrix) {
+	var s;
+	var tr = matrix.m11 + matrix.m22 + matrix.m33 + 1;
+	if (tr >= 1) {
+		s = 0.5 / Math.sqrt(tr);
+		return new Quaternion((matrix.m23 - matrix.m32) * s, (matrix.m31 - matrix.m13) * s, (matrix.m12 - matrix.m21) * s, 0.25 / s);
+	}
+	else {
+		var max;
+		if (matrix.m22 > matrix.m33)
+			max = matrix.m22;
+		else
+			max = matrix.m33;
+		
+		if (max < matrix.m11) {
+			s = Math.sqrt(matrix.m11 - (matrix.m22 + matrix.m33) + 1);
+			var x = s * 0.5;
+			s = 0.5 / s;
+			return new Quaternion(x, (matrix.m12 + matrix.m21) * s, (matrix.m31 + matrix.m13) * s, (matrix.m23 - matrix.m32) * s);
+		}
+		else if (max == matrix.m22) {
+			s = Math.sqrt(matrix.m22 - (matrix.m33 + matrix.m11) + 1);
+			var y = s * 0.5;
+			s = 0.5 / s;
+			return new Quaternion((matrix.m12 + matrix.m21) * s, y, (matrix.m23 + matrix.m32) * s, (matrix.m31 - matrix.m13) * s);
+		}
+		else {
+			s = Math.sqrt(matrix.m33 - (matrix.m11 + matrix.m22) + 1);
+			var z = s * 0.5;
+			s = 0.5 / s;
+			return new Quaternion((matrix.m31 + matrix.m13) * s, (matrix.m23 + matrix.m32) * s, z, (matrix.m12 - matrix.m21) * s);
 		}
 	}
 }

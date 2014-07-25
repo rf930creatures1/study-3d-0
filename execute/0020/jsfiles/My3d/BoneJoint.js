@@ -24,6 +24,7 @@ function TransData() {
 	this.rotX = 0;
 	this.rotY = 0;
 	this.rotZ = 0;
+	this.quaternion = null;
 }
 
 //子を追加
@@ -106,46 +107,51 @@ BoneJoint.prototype.animation = function(t) {
 		}
 		
 		var f = Math.floor(t / boneJoint.frameTime);
+		var nt = (t - f * boneJoint.frameTime) / boneJoint.frameTime; // (現在の時間-フレーム開始時間)/フレームの長さ で％を求める
 		var m = boneJoint.matrix;
 		var td = new TransData();
+		var ntd = new TransData();
+		var tds = [td, ntd];
 		boneJoint.transdata = td;
+		
 		for (var i in boneJoint.animationDatas) {
 			var animdata = boneJoint.animationDatas[i];
-			//時間がモーションデータを超えてたら止める
-			if (f < animdata.motion.length) {
-				td.changed = true;
-				var value = animdata.motion[f];
-				if (animdata.name == "Xposition") {
-					td.posX = value;
-				}
-				else if (animdata.name == "Yposition") {
-					td.posY = value;
-				}
-				else if (animdata.name == "Zposition") {
-					td.posZ = -value;
-				}
-				else if (animdata.name == "Xrotation") {
-					td.rotX = CircleCalculator.toRadian(value);
-				}
-				else if (animdata.name == "Yrotation") {
-					td.rotY = CircleCalculator.toRadian(value);
-				}
-				else if (animdata.name == "Zrotation") {
-					td.rotZ = CircleCalculator.toRadian(value);
+			for (var j = 0; j < tds.length; j++) { //j==1は、補間用に取得
+				//時間がモーションデータを超えてたら止める
+				if (f + j < animdata.motion.length) {
+					tds[j].changed = true;
+					var value = animdata.motion[f + j];
+					if (animdata.name == "Xposition") {
+						tds[j].posX = value;
+					}
+					else if (animdata.name == "Yposition") {
+						tds[j].posY = value;
+					}
+					else if (animdata.name == "Zposition") {
+						tds[j].posZ = -value;
+					}
+					else if (animdata.name == "Xrotation") {
+						tds[j].rotX = CircleCalculator.toRadian(value);
+					}
+					else if (animdata.name == "Yrotation") {
+						tds[j].rotY = CircleCalculator.toRadian(value);
+					}
+					else if (animdata.name == "Zrotation") {
+						tds[j].rotZ = CircleCalculator.toRadian(value);
+					}
 				}
 			}
 		}
-		/*
-		if (td.changed) {
-			m.setIdentity();
-			//回転する
-			m.rotateZ(td.rotZ);
-			m.rotateX(td.rotX);
-			m.rotateY(td.rotY);
-			//移動してから↑
-			m.translate(td.posX, td.posY, td.posZ);
+		
+		//補間する
+		//tdが始まり、ntdが目標、ntが時間、tdに入れる。
+		if (ntd.changed) {
+			var q = Quaternion.slerp(Quaternion.Euler(td.rotX, td.rotY, td.rotZ), Quaternion.Euler(ntd.rotX, ntd.rotY, ntd.rotZ), nt);
+			//td.rotX = q.x;
+			//td.rotY = q.y;
+			//td.rotZ = q.z;
+			td.quaternion = q;
 		}
-		*/
 	}
 	
 	function identity(boneJoint) {
@@ -166,9 +172,14 @@ BoneJoint.prototype.animation = function(t) {
 			var m = boneJoint.matrix;
 			var td = bjParent.transdata;
 			if (td.changed) {
-				m.rotateZ(td.rotZ);
-				m.rotateX(td.rotX);
-				m.rotateY(td.rotY);
+				if (td.quaternion == null) {
+					m.rotateZ(td.rotZ);
+					m.rotateX(td.rotX);
+					m.rotateY(td.rotY);
+				}
+				else {
+					m.multiply(td.quaternion.rotationMatrix());
+				}
 			}
 		}
 		
@@ -194,4 +205,43 @@ BoneJoint.prototype.animation = function(t) {
 	identity(this);
 	rotate(null, this);
 	translate(this);
+	colcnt=0;
+}
+
+var colcnt = 0; //Genealogyの色を分けるための変数なので、色分けする必要が無いなら取り除く。
+BoneJoint.prototype.drawGenealogy = function(canvas, boneJoint, basePosition, at, eye, up, seisyaei, left, right, top, bottom, near, far) {
+	
+	//親と子を結んで、
+	//子を使って再帰する
+	
+	for (var i in boneJoint.children) {
+		colcnt++;
+		var mat = boneJoint.worldMatrix.dup();
+		var matid = Matrix4x4_Identity();
+		matid.translate(basePosition.x, basePosition.y, basePosition.z);
+		matid.multiply(mat);
+		
+		mat = boneJoint.children[i].worldMatrix.dup();
+		var matid2 = Matrix4x4_Identity();
+		matid2.translate(basePosition.x, basePosition.y, basePosition.z);
+		matid2.multiply(mat);
+		
+		var po = new Vector3();
+		var p1 = matid.transform(po);
+		var p2 = matid2.transform(po);
+		var lineModel = new LineModel([new Line3d(p1, p2)]);
+		
+		lineModel.World(Matrix4x4_Identity());
+		lineModel.Camera(at, eye, up);
+		if (seisyaei)
+			lineModel.OrthogonalProjection(left, right, top, bottom, near, far);
+		else
+			lineModel.Perspective(left, right, top, bottom, near, far);
+		lineModel.Screen(canvas);
+		
+		var cols = [new Color(255, 255, 255, 255), new Color(255, 0, 255, 255)];
+		lineModel.draw(canvas, [cols[colcnt % 2]]);
+		
+		this.drawGenealogy(canvas, boneJoint.children[i], basePosition, at, eye, up, seisyaei, left, right, top, bottom, near, far);
+	}
 }

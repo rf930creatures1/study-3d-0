@@ -4,10 +4,10 @@
 function Guide3d(guideLength) { //表示する線の長さを引数で取る
 	if (guideLength == null) guideLength = 100;
 	var mp = [new Vector3(0, 0, 0), new Vector3(guideLength, 0, 0), new Vector3(0, guideLength, 0), new Vector3(0, 0, guideLength)];
-	this.model = new Model(
-					[new Polygon(mp[0], mp[1], mp[0]),
-					 new Polygon(mp[0], mp[2], mp[0]),
-					 new Polygon(mp[0], mp[3], mp[0])
+	this.model = new LineModel(
+					[new Line3d(mp[0], mp[1]),
+					 new Line3d(mp[0], mp[2]),
+					 new Line3d(mp[0], mp[3])
 					]
 				);
 	this.projectionType = ProjectionType.SEISHAEI;
@@ -42,7 +42,6 @@ Guide3d.prototype.draw = function(canvas, at, eye, up, left, right, top, bottom,
 		canvas.beginPath();
 		canvas.moveTo(s.p1.x, s.p1.y);
 		canvas.lineTo(s.p2.x, s.p2.y);
-		canvas.lineTo(s.p3.x, s.p3.y);
 		canvas.closePath();
 		canvas.stroke();
 		linecolorindex++;
